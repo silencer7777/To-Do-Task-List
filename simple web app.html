@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Simple To-Do App</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        li {
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+        }
+        input[type="text"] {
+            width: 70%;
+            padding: 5px;
+        }
+        button {
+            padding: 5px 10px;
+            margin-left: 5px;
+        }
+        .completed {
+            text-decoration: line-through;
+            color: #888;
+        }
+        .remove-btn {
+            margin-left: auto;
+            background-color: #ff4d4d;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        #removeAll {
+            margin-top: 20px;
+            background-color: #ff4d4d;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <h1>My Simple To-Do App</h1>
+    <input type="text" id="taskInput" placeholder="Enter a new task">
+    <button onclick="addTask()">Add Task</button>
+    <ul id="taskList"></ul>
+    <button id="removeAll" onclick="removeAllTasks()">Remove All Tasks</button>
+
+    <script>
+        function addTask() {
+            var input = document.getElementById("taskInput");
+            var task = input.value;
+            if (task === '') return;
+            
+            var li = document.createElement("li");
+            var checkbox = document.createElement("input");
+            checkbox.type = "checkbox";
+            checkbox.onclick = function() {
+                li.classList.toggle("completed");
+            };
+            
+            var removeBtn = document.createElement("button");
+            removeBtn.textContent = "Remove";
+            removeBtn.className = "remove-btn";
+            removeBtn.onclick = function() {
+                li.remove();
+            };
+            
+            li.appendChild(checkbox);
+            li.appendChild(document.createTextNode(" " + task));
+            li.appendChild(removeBtn);
+            document.getElementById("taskList").appendChild(li);
+            
+            input.value = '';
+        }
+
+        function removeAllTasks() {
+            document.getElementById("taskList").innerHTML = '';
+        }
+    </script>
+</body>
+</html>
+
