@@ -1,170 +1,97 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Simple To-Do App</title>
-    <style>
-        /* General styles */
-        body {
-            font-family: Arial, sans-serif;
-            max-width: 500px;
-            margin: 0 auto;
-            padding: 20px;
-            background-image: url('https://pplx-res.cloudinary.com/image/upload/v1743056461/user_uploads/RTEMdJPOKXIiVsT/astronaut-11080_1280.jpg');
-            background-size: cover;
-            background-repeat: no-repeat;
-            background-attachment: fixed;
-        }
-
-        h1 {
-            text-align: center;
-            color: #fff;
-        }
-
-        ul {
-            list-style-type: none;
-            padding: 0;
-        }
-
-        li {
-            margin-bottom: 10px;
-            display: flex;
-            align-items: center;
-        }
-
-        input[type="text"] {
-            width: calc(100% - 90px);
-            padding: 5px;
-        }
-
-        button {
-            padding: 5px 10px;
-            margin-left: 5px;
-        }
-
-        .completed {
-            text-decoration: line-through;
-            color: #888;
-        }
-
-        .remove-btn {
-            margin-left: auto;
-            background-color: #ff4d4d;
-            color: white;
-            border: none;
-            cursor: pointer;
-        }
-
-        #removeAll {
-            margin-top: 20px;
-            background-color: #ff4d4d;
-            color: white;
-            border: none;
-            cursor: pointer;
-        }
-
-        /* Responsive styles */
-        @media screen and (max-width: 600px) {
-            body {
-                max-width: 100%;
-                padding: 10px;
-                font-size: 14px;
-                background-size: contain;
-            }
-
-            h1 {
-                font-size: 18px;
-                margin-bottom: 10px;
-            }
-
-            input[type="text"], button {
-                font-size: 12px;
-                padding: 3px;
-            }
-            
-            #removeAll {
-                font-size: 12px;
-                padding: 5px;
-            }
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Simple To-Do App</title>
+<style>
+body {
+font-family: Arial, sans-serif;
+max-width: 500px;
+margin: 0 auto;
+padding: 20px;
+background-image: url('https://pplx-res.cloudinary.com/image/upload/v1743056461/user_uploads/RTEMdJPOKXIiVsT/astronaut-11080_1280.jpg');
+background-size: cover; /* This will cover the entire body */
+background-repeat: no-repeat; /* Prevent the image from repeating */
+background-attachment: fixed; /* Optional: Keeps the background fixed during scrolling */
+}
+ul {
+list-style-type: none;
+padding: 0;
+}
+li {
+margin-bottom: 10px;
+display: flex;
+align-items: center;
+}
+input[type="text"] {
+width: 70%;
+padding: 5px;
+}
+button {
+padding: 5px 10px;
+margin-left: 5px;
+}
+.completed {
+text-decoration: line-through;
+color: #888;
+}
+.remove-btn {
+margin-left: auto;
+background-color: #ff4d4d;
+color: white;
+border: none;
+cursor: pointer;
+}
+#removeAll {
+margin-top: 20px;
+background-color: #ff4d4d;
+color: white;
+border: none;
+cursor: pointer;
+}
+</style>
 </head>
 <body>
-    <h1>My Simple To-Do App</h1>
-    <input type="text" id="taskInput" placeholder="Enter a new task">
-    <button id="addTask">Add Task</button>
-    <ul id="taskList"></ul>
-    <button id="removeAll">Remove All Tasks</button>
+<h1>My Simple To-Do App</h1>
+<input type="text" id="taskInput" placeholder="Enter a new task">
+<button onclick="addTask()">Add Task</button>
+<ul id="taskList"></ul>
+<button id="removeAll" onclick="removeAllTasks()">Remove All Tasks</button>
 
-    <script>
-        // Function to add a new task
-        function addTask() {
-            console.log("addTask function called"); // Debug log
-            var input = document.getElementById("taskInput");
-            var task = input.value.trim();
-            
-            if (task === '') {
-                console.log("Task is empty"); // Debug log
-                return;
-            }
+<script>
+function addTask() {
+var input = document.getElementById("taskInput");
+var task = input.value;
+if (task === '') return;
 
-            console.log("Adding task: " + task); // Debug log
+var li = document.createElement("li");
+var checkbox = document.createElement("input");
+checkbox.type = "checkbox";
+checkbox.onclick = function() {
+li.classList.toggle("completed");
+};
 
-            var li = document.createElement("li");
-            
-            var checkbox = document.createElement("input");
-            checkbox.type = "checkbox";
-            
-            checkbox.onclick = function() {
-                li.classList.toggle("completed");
-            };
+var removeBtn = document.createElement("button");
+removeBtn.textContent = "Remove";
+removeBtn.className = "remove-btn";
+removeBtn.onclick = function() {
+li.remove();
+};
 
-            var removeBtn = document.createElement("button");
-            removeBtn.textContent = "Remove";
-            removeBtn.className = "remove-btn";
-            
-            removeBtn.onclick = function() {
-                li.remove();
-            };
+li.appendChild(checkbox);
+li.appendChild(document.createTextNode(" " + task));
+li.appendChild(removeBtn);
+document.getElementById("taskList").appendChild(li);
 
-            li.appendChild(checkbox);
-            li.appendChild(document.createTextNode(" " + task));
-            li.appendChild(removeBtn);
-            document.getElementById("taskList").appendChild(li);
+input.value = '';
+}
 
-            input.value = '';
-        }
-
-        // Function to remove all tasks
-        function removeAllTasks() {
-            console.log("removeAllTasks function called"); // Debug log
-            document.getElementById("taskList").innerHTML = '';
-        }
-
-        // Add event listeners when the DOM is fully loaded
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log("DOM fully loaded"); // Debug log
-            var addTaskButton = document.getElementById('addTask');
-            var removeAllButton = document.getElementById('removeAll');
-
-            if (addTaskButton) {
-                addTaskButton.addEventListener('click', addTask);
-                console.log("Add Task button listener added"); // Debug log
-            } else {
-                console.error("Add Task button not found"); // Error log
-            }
-
-            if (removeAllButton) {
-                removeAllButton.addEventListener('click', removeAllTasks);
-                console.log("Remove All button listener added"); // Debug log
-            } else {
-                console.error("Remove All button not found"); // Error log
-            }
-        });
-    </script>
+function removeAllTasks() {
+document.getElementById("taskList").innerHTML = '';
+}
+</script>
 </body>
 </html>
-
 
 
