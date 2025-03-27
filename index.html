@@ -10,7 +10,7 @@
             max-width: 500px;
             margin: 0 auto;
             padding: 20px;
-            background-image: url('https://pplx-res.cloudinary.com/image/upload/v1743009619/user_uploads/eRnKNGrHHqANqvv/astronaut-11080_1280.jpg');
+            background-image: url('https://pplx-res.cloudinary.com/image/upload/v1743056461/user_uploads/RTEMdJPOKXIiVsT/astronaut-11080_1280.jpg');
             background-size: cover; /* This will cover the entire body */
             background-repeat: no-repeat; /* Prevent the image from repeating */
             background-attachment: fixed; /* Optional: Keeps the background fixed during scrolling */
@@ -64,26 +64,26 @@
             var input = document.getElementById("taskInput");
             var task = input.value;
             if (task === '') return;
-            
+
             var li = document.createElement("li");
             var checkbox = document.createElement("input");
             checkbox.type = "checkbox";
             checkbox.onclick = function() {
                 li.classList.toggle("completed");
             };
-            
+
             var removeBtn = document.createElement("button");
             removeBtn.textContent = "Remove";
             removeBtn.className = "remove-btn";
             removeBtn.onclick = function() {
                 li.remove();
             };
-            
+
             li.appendChild(checkbox);
             li.appendChild(document.createTextNode(" " + task));
             li.appendChild(removeBtn);
             document.getElementById("taskList").appendChild(li);
-            
+
             input.value = '';
         }
 
