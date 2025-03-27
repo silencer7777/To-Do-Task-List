@@ -98,11 +98,18 @@
     <button id="removeAll">Remove All Tasks</button>
 
     <script>
+        // Function to add a new task
         function addTask() {
+            console.log("addTask function called"); // Debug log
             var input = document.getElementById("taskInput");
             var task = input.value.trim();
             
-            if (task === '') return;
+            if (task === '') {
+                console.log("Task is empty"); // Debug log
+                return;
+            }
+
+            console.log("Adding task: " + task); // Debug log
 
             var li = document.createElement("li");
             
@@ -129,17 +136,35 @@
             input.value = '';
         }
 
+        // Function to remove all tasks
         function removeAllTasks() {
+            console.log("removeAllTasks function called"); // Debug log
             document.getElementById("taskList").innerHTML = '';
         }
 
         // Add event listeners when the DOM is fully loaded
         document.addEventListener('DOMContentLoaded', function() {
-            document.getElementById('addTask').addEventListener('click', addTask);
-            document.getElementById('removeAll').addEventListener('click', removeAllTasks);
+            console.log("DOM fully loaded"); // Debug log
+            var addTaskButton = document.getElementById('addTask');
+            var removeAllButton = document.getElementById('removeAll');
+
+            if (addTaskButton) {
+                addTaskButton.addEventListener('click', addTask);
+                console.log("Add Task button listener added"); // Debug log
+            } else {
+                console.error("Add Task button not found"); // Error log
+            }
+
+            if (removeAllButton) {
+                removeAllButton.addEventListener('click', removeAllTasks);
+                console.log("Remove All button listener added"); // Debug log
+            } else {
+                console.error("Remove All button not found"); // Error log
+            }
         });
     </script>
 </body>
 </html>
+
 
 
