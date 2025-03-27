@@ -34,7 +34,7 @@
         }
 
         input[type="text"] {
-            width: calc(100% - 90px); /* Adjust width dynamically */
+            width: calc(100% - 90px);
             padding: 5px;
         }
 
@@ -68,24 +68,24 @@
         @media screen and (max-width: 600px) {
             body {
                 max-width: 100%;
-                padding: 10px; /* Reduce padding for smaller screens */
-                font-size: 14px; /* Adjust font size */
-                background-size: contain; /* Adjust background image scaling */
+                padding: 10px;
+                font-size: 14px;
+                background-size: contain;
             }
 
             h1 {
-                font-size: 18px; /* Smaller heading for mobile devices */
-                margin-bottom: 10px; /* Reduce spacing */
+                font-size: 18px;
+                margin-bottom: 10px;
             }
 
             input[type="text"], button {
-                font-size: 12px; /* Smaller input and button text */
-                padding: 3px; /* Reduce padding for inputs and buttons */
+                font-size: 12px;
+                padding: 3px;
             }
             
             #removeAll {
-                font-size: 12px; /* Adjust button text size */
-                padding: 5px; /* Reduce button padding */
+                font-size: 12px;
+                padding: 5px;
             }
         }
     </style>
@@ -93,9 +93,9 @@
 <body>
     <h1>My Simple To-Do App</h1>
     <input type="text" id="taskInput" placeholder="Enter a new task">
-    <button onclick="addTask()">Add Task</button>
+    <button id="addTask">Add Task</button>
     <ul id="taskList"></ul>
-    <button id="removeAll" onclick="removeAllTasks()">Remove All Tasks</button>
+    <button id="removeAll">Remove All Tasks</button>
 
     <script>
         function addTask() {
@@ -114,22 +114,32 @@
             };
 
             var removeBtn = document.createElement("button");
-            
             removeBtn.textContent = "Remove";
-            
             removeBtn.className = "remove-btn";
             
             removeBtn.onclick = function() {
                 li.remove();
             };
 
-            
-           li.appendChild(checkbox);
-           li.appendChild(document.createTextNode(" " + task));
-           li.appendChild(removeBtn);
-           document.getElementById("taskList").appendChild(li);
+            li.appendChild(checkbox);
+            li.appendChild(document.createTextNode(" " + task));
+            li.appendChild(removeBtn);
+            document.getElementById("taskList").appendChild(li);
 
-           input.value = '';
-       }
-       function removeAllTasks() {document.getElementById("taskList").innerHTML='';}
+            input.value = '';
+        }
+
+        function removeAllTasks() {
+            document.getElementById("taskList").innerHTML = '';
+        }
+
+        // Add event listeners when the DOM is fully loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('addTask').addEventListener('click', addTask);
+            document.getElementById('removeAll').addEventListener('click', removeAllTasks);
+        });
+    </script>
+</body>
+</html>
+
 
