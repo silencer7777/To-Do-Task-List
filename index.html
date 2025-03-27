@@ -5,37 +5,49 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Simple To-Do App</title>
     <style>
+        /* General styles */
         body {
             font-family: Arial, sans-serif;
             max-width: 500px;
             margin: 0 auto;
             padding: 20px;
             background-image: url('https://pplx-res.cloudinary.com/image/upload/v1743056461/user_uploads/RTEMdJPOKXIiVsT/astronaut-11080_1280.jpg');
-            background-size: cover; /* This will cover the entire body */
-            background-repeat: no-repeat; /* Prevent the image from repeating */
-            background-attachment: fixed; /* Optional: Keeps the background fixed during scrolling */
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
         }
+
+        h1 {
+            text-align: center;
+            color: #fff;
+        }
+
         ul {
             list-style-type: none;
             padding: 0;
         }
+
         li {
             margin-bottom: 10px;
             display: flex;
             align-items: center;
         }
+
         input[type="text"] {
-            width: 70%;
+            width: calc(100% - 90px); /* Adjust width dynamically */
             padding: 5px;
         }
+
         button {
             padding: 5px 10px;
             margin-left: 5px;
         }
+
         .completed {
             text-decoration: line-through;
             color: #888;
         }
+
         .remove-btn {
             margin-left: auto;
             background-color: #ff4d4d;
@@ -43,12 +55,38 @@
             border: none;
             cursor: pointer;
         }
+
         #removeAll {
             margin-top: 20px;
             background-color: #ff4d4d;
             color: white;
             border: none;
             cursor: pointer;
+        }
+
+        /* Responsive styles */
+        @media screen and (max-width: 600px) {
+            body {
+                max-width: 100%;
+                padding: 10px; /* Reduce padding for smaller screens */
+                font-size: 14px; /* Adjust font size */
+                background-size: contain; /* Adjust background image scaling */
+            }
+
+            h1 {
+                font-size: 18px; /* Smaller heading for mobile devices */
+                margin-bottom: 10px; /* Reduce spacing */
+            }
+
+            input[type="text"], button {
+                font-size: 12px; /* Smaller input and button text */
+                padding: 3px; /* Reduce padding for inputs and buttons */
+            }
+            
+            #removeAll {
+                font-size: 12px; /* Adjust button text size */
+                padding: 5px; /* Reduce button padding */
+            }
         }
     </style>
 </head>
@@ -62,35 +100,36 @@
     <script>
         function addTask() {
             var input = document.getElementById("taskInput");
-            var task = input.value;
+            var task = input.value.trim();
+            
             if (task === '') return;
 
             var li = document.createElement("li");
+            
             var checkbox = document.createElement("input");
             checkbox.type = "checkbox";
+            
             checkbox.onclick = function() {
                 li.classList.toggle("completed");
             };
 
             var removeBtn = document.createElement("button");
+            
             removeBtn.textContent = "Remove";
+            
             removeBtn.className = "remove-btn";
+            
             removeBtn.onclick = function() {
                 li.remove();
             };
 
-            li.appendChild(checkbox);
-            li.appendChild(document.createTextNode(" " + task));
-            li.appendChild(removeBtn);
-            document.getElementById("taskList").appendChild(li);
+            
+           li.appendChild(checkbox);
+           li.appendChild(document.createTextNode(" " + task));
+           li.appendChild(removeBtn);
+           document.getElementById("taskList").appendChild(li);
 
-            input.value = '';
-        }
-
-        function removeAllTasks() {
-            document.getElementById("taskList").innerHTML = '';
-        }
-    </script>
-</body>
-</html>
+           input.value = '';
+       }
+       function removeAllTasks() {document.getElementById("taskList").innerHTML='';}
 
