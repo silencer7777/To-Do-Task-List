@@ -1,4 +1,4 @@
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -6,49 +6,62 @@
 <title>My Simple To-Do App</title>
 <style>
 body {
-font-family: Arial, sans-serif;
-max-width: 500px;
-margin: 0 auto;
-padding: 20px;
-background-image: url('https://pplx-res.cloudinary.com/image/upload/v1743056461/user_uploads/RTEMdJPOKXIiVsT/astronaut-11080_1280.jpg');
-background-size: cover; /* This will cover the entire body */
-background-repeat: no-repeat; /* Prevent the image from repeating */
-background-attachment: fixed; /* Optional: Keeps the background fixed during scrolling */
+    font-family: Arial, sans-serif;
+    max-width: 500px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #f0f4f8;
+    color: #333;
 }
 ul {
-list-style-type: none;
-padding: 0;
+    list-style-type: none;
+    padding: 0;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 li {
-margin-bottom: 10px;
-display: flex;
-align-items: center;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    border-bottom: 1px solid #eee;
 }
-input[type="text"] {
-width: 70%;
-padding: 5px;
+li:last-child {
+    border-bottom: none;
+}
+input[type="text"], button {
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
 }
 button {
-padding: 5px 10px;
-margin-left: 5px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+button:hover {
+    background-color: #45a049;
 }
 .completed {
-text-decoration: line-through;
-color: #888;
+    text-decoration: line-through;
+    color: #888;
 }
 .remove-btn {
-margin-left: auto;
-background-color: #ff4d4d;
-color: white;
-border: none;
-cursor: pointer;
+    margin-left: auto;
+    background-color: #ff4d4d;
+    color: white;
+    border: none;
+    cursor: pointer;
 }
 #removeAll {
-margin-top: 20px;
-background-color: #ff4d4d;
-color: white;
-border: none;
-cursor: pointer;
+    margin-top: 20px;
+    background-color: #ff4d4d;
+    color: white;
+    border: none;
+    cursor: pointer;
 }
 </style>
 </head>
@@ -61,34 +74,34 @@ cursor: pointer;
 
 <script>
 function addTask() {
-var input = document.getElementById("taskInput");
-var task = input.value;
-if (task === '') return;
+    var input = document.getElementById("taskInput");
+    var task = input.value;
+    if (task === '') return;
 
-var li = document.createElement("li");
-var checkbox = document.createElement("input");
-checkbox.type = "checkbox";
-checkbox.onclick = function() {
-li.classList.toggle("completed");
-};
+    var li = document.createElement("li");
+    var checkbox = document.createElement("input");
+    checkbox.type = "checkbox";
+    checkbox.onclick = function() {
+        li.classList.toggle("completed");
+    };
 
-var removeBtn = document.createElement("button");
-removeBtn.textContent = "Remove";
-removeBtn.className = "remove-btn";
-removeBtn.onclick = function() {
-li.remove();
-};
+    var removeBtn = document.createElement("button");
+    removeBtn.textContent = "Remove";
+    removeBtn.className = "remove-btn";
+    removeBtn.onclick = function() {
+        li.remove();
+    };
 
-li.appendChild(checkbox);
-li.appendChild(document.createTextNode(" " + task));
-li.appendChild(removeBtn);
-document.getElementById("taskList").appendChild(li);
+    li.appendChild(checkbox);
+    li.appendChild(document.createTextNode(" " + task));
+    li.appendChild(removeBtn);
+    document.getElementById("taskList").appendChild(li);
 
-input.value = '';
+    input.value = '';
 }
 
 function removeAllTasks() {
-document.getElementById("taskList").innerHTML = '';
+    document.getElementById("taskList").innerHTML = '';
 }
 </script>
 </body>
