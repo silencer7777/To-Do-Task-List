@@ -1,3 +1,4 @@
+README: My Simple To-Do App
 Overview
 This is a lightweight, user-friendly To-Do application built with HTML, CSS, and JavaScript. It allows users to manage tasks efficiently by adding, marking as completed, and removing tasks. The app features a clean design and intuitive functionality, making task management simple and effective.
 
