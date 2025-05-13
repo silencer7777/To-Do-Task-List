@@ -1,108 +1,203 @@
+<!-- index.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>My Simple To-Do App</title>
+<title>Artful Task-List</title>
 <style>
 body {
-    font-family: Arial, sans-serif;
-    max-width: 500px;
-    margin: 0 auto;
-    padding: 20px;
-    background-color: #f0f4f8;
-    color: #333;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: linear-gradient(135deg, #f3e7e9 0%, #e3eeff 100%);
+    color: #222;
+    margin: 0;
+    min-height: 100vh;
 }
-ul {
-    list-style-type: none;
+#art-header {
+    text-align: center;
+    margin: 40px 0 20px 0;
+    font-size: 2.5em;
+    letter-spacing: 2px;
+    font-family: 'Brush Script MT', cursive, sans-serif;
+    color: #6a0572;
+    text-shadow: 2px 2px 0 #fff, 0 0 10px #c471f5;
+}
+#login-section, #task-section {
+    background: rgba(255,255,255,0.85);
+    border-radius: 16px;
+    box-shadow: 0 4px 24px rgba(106,5,114,0.12);
+    max-width: 400px;
+    margin: 0 auto 24px auto;
+    padding: 32px;
+    transition: box-shadow 0.3s;
+}
+#login-section input, #task-section input, #task-section button {
+    margin: 8px 0;
+    padding: 10px;
+    border-radius: 6px;
+    border: 1px solid #c471f5;
+    width: 100%;
+    font-size: 1em;
+}
+#taskList {
+    list-style: none;
     padding: 0;
-    background-color: white;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 li {
-    margin-bottom: 10px;
     display: flex;
     align-items: center;
-    padding: 10px;
+    padding: 12px;
     border-bottom: 1px solid #eee;
+    background: linear-gradient(90deg, #f3e7e9 0%, #e3eeff 100%);
+    border-radius: 8px;
+    margin-bottom: 8px;
+    box-shadow: 0 2px 8px rgba(196,113,245,0.07);
 }
-li:last-child {
-    border-bottom: none;
-}
-input[type="text"], button {
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-}
-button {
-    background-color: #4CAF50;
-    color: white;
-    border: none;
-    cursor: pointer;
-    transition: background-color 0.3s;
-}
-button:hover {
-    background-color: #45a049;
-}
-.completed {
+li.completed {
     text-decoration: line-through;
     color: #888;
+    opacity: 0.7;
 }
 .remove-btn {
     margin-left: auto;
-    background-color: #ff4d4d;
+    background: #ff4d4d;
     color: white;
     border: none;
+    border-radius: 6px;
+    padding: 7px 14px;
     cursor: pointer;
 }
-#removeAll {
-    margin-top: 20px;
-    background-color: #ff4d4d;
-    color: white;
+#logout-btn {
+    background: #6a0572;
+    color: #fff;
     border: none;
+    border-radius: 6px;
+    padding: 10px 20px;
     cursor: pointer;
+    margin-bottom: 20px;
+}
+.art-bg {
+    position: fixed;
+    top: 0; left: 0; width: 100vw; height: 100vh;
+    z-index: -1;
+    opacity: 0.15;
+    background: url('https://images.unsplash.com/photo-1464983953574-0892a716854b?auto=format&fit=crop&w=800&q=80') no-repeat center center;
+    background-size: cover;
+    filter: blur(2px);
 }
 </style>
 </head>
 <body>
-<h1>My Simple To-Do App</h1>
-<input type="text" id="taskInput" placeholder="Enter a new task">
-<button onclick="addTask()">Add Task</button>
-<ul id="taskList"></ul>
-<button id="removeAll" onclick="removeAllTasks()">Remove All Tasks</button>
+<div class="art-bg"></div>
+<div id="art-header">🎨 Artful Task-List</div>
+
+<div id="login-section">
+    <h2>Login / Register</h2>
+    <input type="text" id="username" placeholder="Username">
+    <input type="password" id="password" placeholder="Password">
+    <button onclick="login()">Login / Register</button>
+    <div id="login-msg"></div>
+</div>
+
+<div id="task-section" style="display:none;">
+    <button id="logout-btn" onclick="logout()">Logout</button>
+    <h2 id="welcome"></h2>
+    <input type="text" id="taskInput" placeholder="Enter a new task">
+    <button onclick="addTask()">Add Task</button>
+    <ul id="taskList"></ul>
+    <button id="removeAll" onclick="removeAllTasks()">Remove All Tasks</button>
+</div>
 
 <script>
+let currentUser = null;
+
+function saveUsers(users) {
+    localStorage.setItem('users', JSON.stringify(users));
+}
+function getUsers() {
+    return JSON.parse(localStorage.getItem('users') || '{}');
+}
+function login() {
+    const uname = document.getElementById('username').value.trim();
+    const pwd = document.getElementById('password').value;
+    if (!uname || !pwd) {
+        document.getElementById('login-msg').textContent = "Enter username and password.";
+        return;
+    }
+    let users = getUsers();
+    if (!users[uname]) {
+        // Register
+        users[uname] = {password: pwd, tasks: []};
+        saveUsers(users);
+    }
+    if (users[uname].password === pwd) {
+        currentUser = uname;
+        document.getElementById('login-section').style.display = "none";
+        document.getElementById('task-section').style.display = "";
+        document.getElementById('welcome').textContent = `Welcome, ${uname}!`;
+        loadTasks();
+    } else {
+        document.getElementById('login-msg').textContent = "Wrong password.";
+    }
+}
+function logout() {
+    currentUser = null;
+    document.getElementById('login-section').style.display = "";
+    document.getElementById('task-section').style.display = "none";
+    document.getElementById('username').value = "";
+    document.getElementById('password').value = "";
+    document.getElementById('login-msg').textContent = "";
+}
+function loadTasks() {
+    let users = getUsers();
+    let tasks = users[currentUser].tasks || [];
+    const ul = document.getElementById('taskList');
+    ul.innerHTML = '';
+    tasks.forEach((t, idx) => {
+        const li = document.createElement('li');
+        if (t.completed) li.classList.add('completed');
+        const cb = document.createElement('input');
+        cb.type = 'checkbox';
+        cb.checked = t.completed;
+        cb.onclick = () => { t.completed = cb.checked; saveAndReload(); };
+        li.appendChild(cb);
+        li.appendChild(document.createTextNode(" " + t.text));
+        const btn = document.createElement('button');
+        btn.textContent = "Remove";
+        btn.className = "remove-btn";
+        btn.onclick = () => { tasks.splice(idx,1); saveAndReload(); };
+        li.appendChild(btn);
+        ul.appendChild(li);
+    });
+}
+function saveAndReload() {
+    let users = getUsers();
+    users[currentUser].tasks = Array.from(document.getElementById('taskList').children).map(li => ({
+        text: li.childNodes[1].nodeValue.trim(),
+        completed: li.querySelector('input[type="checkbox"]').checked
+    }));
+    saveUsers(users);
+    loadTasks();
+}
 function addTask() {
-    var input = document.getElementById("taskInput");
-    var task = input.value;
-    if (task === '') return;
-
-    var li = document.createElement("li");
-    var checkbox = document.createElement("input");
-    checkbox.type = "checkbox";
-    checkbox.onclick = function() {
-        li.classList.toggle("completed");
-    };
-
-    var removeBtn = document.createElement("button");
-    removeBtn.textContent = "Remove";
-    removeBtn.className = "remove-btn";
-    removeBtn.onclick = function() {
-        li.remove();
-    };
-
-    li.appendChild(checkbox);
-    li.appendChild(document.createTextNode(" " + task));
-    li.appendChild(removeBtn);
-    document.getElementById("taskList").appendChild(li);
-
+    const input = document.getElementById('taskInput');
+    let task = input.value.trim();
+    if (!task) return;
+    let users = getUsers();
+    users[currentUser].tasks.push({text: task, completed: false});
+    saveUsers(users);
     input.value = '';
+    loadTasks();
 }
-
 function removeAllTasks() {
-    document.getElementById("taskList").innerHTML = '';
+    let users = getUsers();
+    users[currentUser].tasks = [];
+    saveUsers(users);
+    loadTasks();
 }
+window.onload = function() {
+    if (currentUser) loadTasks();
+};
 </script>
 </body>
 </html>
