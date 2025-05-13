@@ -292,13 +292,21 @@ function loadTasks() {
         const cb = document.createElement('input');
         cb.type = 'checkbox';
         cb.checked = t.completed;
-        cb.onclick = () => { t.completed = cb.checked; saveAndReload(); };
+        cb.onclick = () => {
+            users[currentUser].tasks[idx].completed = cb.checked;
+            saveUsers(users);
+            loadTasks();
+        };
         li.appendChild(cb);
         li.appendChild(document.createTextNode(" " + t.text));
         const btn = document.createElement('button');
         btn.textContent = "Remove";
         btn.className = "remove-btn";
-        btn.onclick = () => { tasks.splice(idx,1); saveAndReload(); };
+        btn.onclick = () => {
+            users[currentUser].tasks.splice(idx, 1);
+            saveUsers(users);
+            loadTasks();
+        };
         li.appendChild(btn);
         ul.appendChild(li);
     });
@@ -340,6 +348,4 @@ window.onload = function() {
 </script>
 </body>
 </html>
-
-
 
