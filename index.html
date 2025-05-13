@@ -21,6 +21,33 @@ body {
     color: #6a0572;
     text-shadow: 2px 2px 0 #fff, 0 0 10px #c471f5;
 }
+#premium-section {
+    background:rgba(255,255,255,0.95);
+    border-radius:16px;
+    box-shadow:0 2px 8px #c471f5;
+    max-width:400px;
+    margin:32px auto 24px auto;
+    padding:24px;
+}
+#premium-section label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 1.05em;
+}
+#premium-section button {
+    margin-top: 10px;
+    background: #6a0572;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    padding: 10px 20px;
+    cursor: pointer;
+}
+#premium-msg {
+    margin-top:8px;
+    color:#6a0572;
+    font-weight: bold;
+}
 #login-section, #register-section, #task-section {
     background: rgba(255,255,255,0.85);
     border-radius: 16px;
@@ -105,11 +132,41 @@ input[type="checkbox"] {
     width: auto;
     margin-right: 8px;
 }
+.premium-feature {
+    background: #e3eeff;
+    color: #6a0572;
+    border-radius: 8px;
+    padding: 10px;
+    margin: 10px 0;
+    font-size: 0.98em;
+    border: 1px dashed #6a0572;
+}
 </style>
 </head>
 <body>
 <div class="art-bg"></div>
 <div id="art-header">🎨 Artful Task-List</div>
+
+<!-- Premium Features Section -->
+<div id="premium-section">
+  <h2>Upgrade to Premium</h2>
+  <div>
+    <label>
+      <input type="radio" name="premium" value="bronze" onclick="selectPremium('bronze')">
+      Bronze ($0.99): Reminders, Custom Themes
+    </label>
+    <label>
+      <input type="radio" name="premium" value="silver" onclick="selectPremium('silver')">
+      Silver ($1.99): All Bronze + Recurring Tasks, Attachments
+    </label>
+    <label>
+      <input type="radio" name="premium" value="gold" onclick="selectPremium('gold')">
+      Gold ($3.00): All Silver + Priority, Calendar View, Productivity Stats
+    </label>
+  </div>
+  <button onclick="purchasePremium()">Purchase</button>
+  <div id="premium-msg"></div>
+</div>
 
 <!-- Registration Section -->
 <div id="register-section" style="display:none;">
@@ -141,6 +198,7 @@ input[type="checkbox"] {
 <div id="task-section" style="display:none;">
     <button id="logout-btn" onclick="logout()">Logout</button>
     <h2 id="welcome"></h2>
+    <div id="premium-features-area"></div>
     <input type="text" id="taskInput" placeholder="Enter a new task">
     <button onclick="addTask()">Add Task</button>
     <ul id="taskList"></ul>
@@ -149,8 +207,56 @@ input[type="checkbox"] {
 
 <script>
 let currentUser = null;
+let premiumTier = localStorage.getItem('premiumTier') || 'free';
 
-// Helper functions
+function selectPremium(tier) {
+    premiumTier = tier;
+}
+function purchasePremium() {
+    if (premiumTier === 'free') {
+        document.getElementById('premium-msg').textContent = "Please select a premium tier.";
+        return;
+    }
+    localStorage.setItem('premiumTier', premiumTier);
+    document.getElementById('premium-msg').textContent = "Thank you for upgrading to " + premiumTier.charAt(0).toUpperCase() + premiumTier.slice(1) + "!";
+    showPremiumFeatures();
+}
+function showPremiumFeatures() {
+    let msg = "";
+    let features = [];
+    if (premiumTier === 'bronze') {
+        msg = "Reminders and Custom Themes unlocked!";
+        features = [
+            "<div class='premium-feature'>🔔 <b>Task Reminders:</b> Set reminders for your tasks!</div>",
+            "<div class='premium-feature'>🎨 <b>Custom Themes:</b> Personalize your app with extra themes!</div>"
+        ];
+    } else if (premiumTier === 'silver') {
+        msg = "Reminders, Custom Themes, Recurring Tasks, and Attachments unlocked!";
+        features = [
+            "<div class='premium-feature'>🔔 <b>Task Reminders:</b> Set reminders for your tasks!</div>",
+            "<div class='premium-feature'>🎨 <b>Custom Themes:</b> Personalize your app with extra themes!</div>",
+            "<div class='premium-feature'>🔁 <b>Recurring Tasks:</b> Set tasks to repeat daily, weekly, etc.</div>",
+            "<div class='premium-feature'>📎 <b>Task Attachments:</b> Attach images or PDFs to your tasks!</div>"
+        ];
+    } else if (premiumTier === 'gold') {
+        msg = "All premium features unlocked! (Reminders, Custom Themes, Recurring Tasks, Attachments, Priority Levels, Calendar View, Productivity Stats)";
+        features = [
+            "<div class='premium-feature'>🔔 <b>Task Reminders:</b> Set reminders for your tasks!</div>",
+            "<div class='premium-feature'>🎨 <b>Custom Themes:</b> Personalize your app with extra themes!</div>",
+            "<div class='premium-feature'>🔁 <b>Recurring Tasks:</b> Set tasks to repeat daily, weekly, etc.</div>",
+            "<div class='premium-feature'>📎 <b>Task Attachments:</b> Attach images or PDFs to your tasks!</div>",
+            "<div class='premium-feature'>⭐ <b>Priority Levels:</b> Assign importance to tasks!</div>",
+            "<div class='premium-feature'>🗓️ <b>Calendar View:</b> Visualize tasks in a calendar!</div>",
+            "<div class='premium-feature'>📊 <b>Productivity Stats:</b> Track your progress and streaks!</div>"
+        ];
+    } else {
+        msg = "Upgrade to unlock premium features!";
+    }
+    document.getElementById('premium-msg').textContent = msg;
+    let area = document.getElementById('premium-features-area');
+    if (area) area.innerHTML = features.join('');
+}
+
 function saveUsers(users) {
     localStorage.setItem('users', JSON.stringify(users));
 }
@@ -277,6 +383,7 @@ function showTasks() {
     document.getElementById('task-section').style.display = "";
     let users = getUsers();
     document.getElementById('welcome').textContent = `Welcome, ${users[currentUser].fullname}!`;
+    showPremiumFeatures();
     loadTasks();
 }
 
@@ -324,6 +431,15 @@ function addTask() {
     const input = document.getElementById('taskInput');
     let task = input.value.trim();
     if (!task) return;
+
+    // Example: Only Silver/Gold can add recurring tasks (feature not yet implemented)
+    if (document.getElementById('recurringInput') && document.getElementById('recurringInput').value) {
+        if (premiumTier !== 'silver' && premiumTier !== 'gold') {
+            alert("Recurring tasks are a Silver or Gold feature. Upgrade to unlock!");
+            return;
+        }
+    }
+
     let users = getUsers();
     users[currentUser].tasks.push({text: task, completed: false});
     saveUsers(users);
@@ -344,8 +460,11 @@ window.onload = function() {
         currentUser = sessionUser;
         showTasks();
     }
+    premiumTier = localStorage.getItem('premiumTier') || 'free';
+    showPremiumFeatures();
 };
 </script>
 </body>
 </html>
+
 
