@@ -1,4 +1,3 @@
-<!-- index.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -22,7 +21,7 @@ body {
     color: #6a0572;
     text-shadow: 2px 2px 0 #fff, 0 0 10px #c471f5;
 }
-#login-section, #task-section {
+#login-section, #register-section, #task-section {
     background: rgba(255,255,255,0.85);
     border-radius: 16px;
     box-shadow: 0 4px 24px rgba(106,5,114,0.12);
@@ -31,13 +30,16 @@ body {
     padding: 32px;
     transition: box-shadow 0.3s;
 }
-#login-section input, #task-section input, #task-section button {
+#login-section input, #register-section input, #task-section input, #task-section button {
     margin: 8px 0;
     padding: 10px;
     border-radius: 6px;
     border: 1px solid #c471f5;
     width: 100%;
     font-size: 1em;
+}
+#register-section input[type="date"] {
+    padding: 8px;
 }
 #taskList {
     list-style: none;
@@ -85,20 +87,57 @@ li.completed {
     background-size: cover;
     filter: blur(2px);
 }
+.toggle-link {
+    color: #6a0572;
+    cursor: pointer;
+    text-decoration: underline;
+    font-size: 0.95em;
+    margin-top: 12px;
+    display: inline-block;
+}
+#remember-me-label {
+    display: flex;
+    align-items: center;
+    font-size: 0.98em;
+    margin-top: 8px;
+}
+input[type="checkbox"] {
+    width: auto;
+    margin-right: 8px;
+}
 </style>
 </head>
 <body>
 <div class="art-bg"></div>
 <div id="art-header">🎨 Artful Task-List</div>
 
-<div id="login-section">
-    <h2>Login / Register</h2>
-    <input type="text" id="username" placeholder="Username">
-    <input type="password" id="password" placeholder="Password">
-    <button onclick="login()">Login / Register</button>
-    <div id="login-msg"></div>
+<!-- Registration Section -->
+<div id="register-section" style="display:none;">
+    <h2>Create Your Account</h2>
+    <input type="text" id="reg-fullname" placeholder="Full Name" required>
+    <input type="date" id="reg-dob" placeholder="Date of Birth" required>
+    <input type="email" id="reg-email" placeholder="Email" required>
+    <input type="text" id="reg-username" placeholder="Username" required>
+    <input type="password" id="reg-password" placeholder="Password" required>
+    <input type="password" id="reg-confirm" placeholder="Confirm Password" required>
+    <label id="remember-me-label"><input type="checkbox" id="reg-remember">Remember Me</label>
+    <button onclick="register()">Create Account</button>
+    <div id="register-msg"></div>
+    <span class="toggle-link" onclick="showLogin()">Already have an account? Log in</span>
 </div>
 
+<!-- Login Section -->
+<div id="login-section">
+    <h2>Login</h2>
+    <input type="text" id="login-username" placeholder="Username or Email">
+    <input type="password" id="login-password" placeholder="Password">
+    <label id="remember-me-label"><input type="checkbox" id="login-remember">Remember Me</label>
+    <button onclick="login()">Login</button>
+    <div id="login-msg"></div>
+    <span class="toggle-link" onclick="showRegister()">New user? Create an account</span>
+</div>
+
+<!-- Task Section -->
 <div id="task-section" style="display:none;">
     <button id="logout-btn" onclick="logout()">Logout</button>
     <h2 id="welcome"></h2>
@@ -111,43 +150,137 @@ li.completed {
 <script>
 let currentUser = null;
 
+// Helper functions
 function saveUsers(users) {
     localStorage.setItem('users', JSON.stringify(users));
 }
 function getUsers() {
     return JSON.parse(localStorage.getItem('users') || '{}');
 }
-function login() {
-    const uname = document.getElementById('username').value.trim();
-    const pwd = document.getElementById('password').value;
-    if (!uname || !pwd) {
-        document.getElementById('login-msg').textContent = "Enter username and password.";
+function saveSession(username, remember) {
+    if (remember) {
+        localStorage.setItem('sessionUser', username);
+    } else {
+        sessionStorage.setItem('sessionUser', username);
+    }
+}
+function clearSession() {
+    localStorage.removeItem('sessionUser');
+    sessionStorage.removeItem('sessionUser');
+}
+function getSession() {
+    return localStorage.getItem('sessionUser') || sessionStorage.getItem('sessionUser');
+}
+
+// Registration
+function register() {
+    const fullname = document.getElementById('reg-fullname').value.trim();
+    const dob = document.getElementById('reg-dob').value;
+    const email = document.getElementById('reg-email').value.trim().toLowerCase();
+    const username = document.getElementById('reg-username').value.trim();
+    const password = document.getElementById('reg-password').value;
+    const confirm = document.getElementById('reg-confirm').value;
+    const remember = document.getElementById('reg-remember').checked;
+
+    let msg = '';
+    if (!fullname || !dob || !email || !username || !password || !confirm) {
+        msg = "Please fill all fields.";
+    } else if (password !== confirm) {
+        msg = "Passwords do not match.";
+    } else if (password.length < 6) {
+        msg = "Password must be at least 6 characters.";
+    }
+
+    let users = getUsers();
+    if (users[username]) {
+        msg = "Username already exists.";
+    }
+    for (let u in users) {
+        if (users[u].email === email) {
+            msg = "Email already registered.";
+            break;
+        }
+    }
+    if (msg) {
+        document.getElementById('register-msg').textContent = msg;
         return;
     }
-    let users = getUsers();
-    if (!users[uname]) {
-        // Register
-        users[uname] = {password: pwd, tasks: []};
-        saveUsers(users);
-    }
-    if (users[uname].password === pwd) {
-        currentUser = uname;
-        document.getElementById('login-section').style.display = "none";
-        document.getElementById('task-section').style.display = "";
-        document.getElementById('welcome').textContent = `Welcome, ${uname}!`;
-        loadTasks();
-    } else {
-        document.getElementById('login-msg').textContent = "Wrong password.";
-    }
+
+    users[username] = {
+        fullname: fullname,
+        dob: dob,
+        email: email,
+        password: password,
+        tasks: []
+    };
+    saveUsers(users);
+    saveSession(username, remember);
+    currentUser = username;
+    document.getElementById('register-msg').textContent = "";
+    showTasks();
 }
+
+// Login
+function login() {
+    const unameOrEmail = document.getElementById('login-username').value.trim();
+    const password = document.getElementById('login-password').value;
+    const remember = document.getElementById('login-remember').checked;
+
+    let users = getUsers();
+    let foundUser = null;
+    for (let u in users) {
+        if (u === unameOrEmail || users[u].email === unameOrEmail.toLowerCase()) {
+            foundUser = u;
+            break;
+        }
+    }
+    if (!foundUser) {
+        document.getElementById('login-msg').textContent = "User not found.";
+        return;
+    }
+    if (users[foundUser].password !== password) {
+        document.getElementById('login-msg').textContent = "Incorrect password.";
+        return;
+    }
+    saveSession(foundUser, remember);
+    currentUser = foundUser;
+    document.getElementById('login-msg').textContent = "";
+    showTasks();
+}
+
+// Logout
 function logout() {
     currentUser = null;
+    clearSession();
     document.getElementById('login-section').style.display = "";
     document.getElementById('task-section').style.display = "none";
-    document.getElementById('username').value = "";
-    document.getElementById('password').value = "";
+    document.getElementById('register-section').style.display = "none";
+    document.getElementById('login-username').value = "";
+    document.getElementById('login-password').value = "";
     document.getElementById('login-msg').textContent = "";
 }
+
+// Toggle forms
+function showRegister() {
+    document.getElementById('login-section').style.display = "none";
+    document.getElementById('register-section').style.display = "";
+    document.getElementById('register-msg').textContent = "";
+}
+function showLogin() {
+    document.getElementById('register-section').style.display = "none";
+    document.getElementById('login-section').style.display = "";
+    document.getElementById('login-msg').textContent = "";
+}
+function showTasks() {
+    document.getElementById('login-section').style.display = "none";
+    document.getElementById('register-section').style.display = "none";
+    document.getElementById('task-section').style.display = "";
+    let users = getUsers();
+    document.getElementById('welcome').textContent = `Welcome, ${users[currentUser].fullname}!`;
+    loadTasks();
+}
+
+// Tasks logic
 function loadTasks() {
     let users = getUsers();
     let tasks = users[currentUser].tasks || [];
@@ -195,8 +328,14 @@ function removeAllTasks() {
     saveUsers(users);
     loadTasks();
 }
+
+// On page load: auto-login if session exists
 window.onload = function() {
-    if (currentUser) loadTasks();
+    let sessionUser = getSession();
+    if (sessionUser && getUsers()[sessionUser]) {
+        currentUser = sessionUser;
+        showTasks();
+    }
 };
 </script>
 </body>
