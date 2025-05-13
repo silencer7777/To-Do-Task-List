@@ -11,6 +11,11 @@ body {
     color: #222;
     margin: 0;
     min-height: 100vh;
+    transition: background 0.5s;
+}
+body.theme-dark {
+    background: linear-gradient(135deg, #232526 0%, #414345 100%);
+    color: #eee;
 }
 #art-header {
     text-align: center;
@@ -48,7 +53,10 @@ body {
     color:#6a0572;
     font-weight: bold;
 }
-#login-section, #register-section, #task-section {
+#theme-switcher {
+    margin: 8px 0 16px 0;
+}
+#login-section, #register-section, #task-section, #forgot-section, #forgot-username-section, #reset-section {
     background: rgba(255,255,255,0.85);
     border-radius: 16px;
     box-shadow: 0 4px 24px rgba(106,5,114,0.12);
@@ -57,7 +65,7 @@ body {
     padding: 32px;
     transition: box-shadow 0.3s;
 }
-#login-section input, #register-section input, #task-section input, #task-section button {
+#login-section input, #register-section input, #task-section input, #task-section button, #recurringInput, #priorityInput, #attachmentInput, #forgot-section input, #forgot-username-section input, #reset-section input {
     margin: 8px 0;
     padding: 10px;
     border-radius: 6px;
@@ -82,10 +90,21 @@ li {
     margin-bottom: 8px;
     box-shadow: 0 2px 8px rgba(196,113,245,0.07);
 }
+body.theme-dark li {
+    background: linear-gradient(90deg, #232526 0%, #414345 100%);
+    color: #eee;
+}
 li.completed {
     text-decoration: line-through;
     color: #888;
     opacity: 0.7;
+}
+.task-priority-high { border-left: 6px solid #e74c3c; }
+.task-priority-medium { border-left: 6px solid #f1c40f; }
+.task-priority-low { border-left: 6px solid #2ecc71; }
+.attachment-link {
+    margin-left: 10px;
+    font-size: 0.9em;
 }
 .remove-btn {
     margin-left: auto;
@@ -114,7 +133,7 @@ li.completed {
     background-size: cover;
     filter: blur(2px);
 }
-.toggle-link {
+.toggle-link, .forgot-link {
     color: #6a0572;
     cursor: pointer;
     text-decoration: underline;
@@ -140,6 +159,30 @@ input[type="checkbox"] {
     margin: 10px 0;
     font-size: 0.98em;
     border: 1px dashed #6a0572;
+}
+#calendar-view {
+    margin: 16px 0;
+    padding: 12px;
+    background: #f3e7e9;
+    border-radius: 10px;
+    box-shadow: 0 1px 4px #c471f5;
+    display: none;
+}
+body.theme-dark #calendar-view {
+    background: #232526;
+    color: #eee;
+}
+#stats-view {
+    margin: 16px 0;
+    padding: 12px;
+    background: #f3e7e9;
+    border-radius: 10px;
+    box-shadow: 0 1px 4px #c471f5;
+    display: none;
+}
+body.theme-dark #stats-view {
+    background: #232526;
+    color: #eee;
 }
 </style>
 </head>
@@ -192,6 +235,37 @@ input[type="checkbox"] {
     <button onclick="login()">Login</button>
     <div id="login-msg"></div>
     <span class="toggle-link" onclick="showRegister()">New user? Create an account</span>
+    <br>
+    <span class="forgot-link" onclick="showForgot()">Forgot Password?</span> | 
+    <span class="forgot-link" onclick="showForgotUsername()">Forgot Username?</span>
+</div>
+
+<!-- Forgot Password Section -->
+<div id="forgot-section" style="display:none;">
+    <h2>Forgot Password</h2>
+    <input type="email" id="forgot-email" placeholder="Enter your registered email">
+    <button onclick="forgotPassword()">Send Reset Link</button>
+    <div id="forgot-msg"></div>
+    <span class="toggle-link" onclick="showLogin()">Back to Login</span>
+</div>
+
+<!-- Forgot Username Section -->
+<div id="forgot-username-section" style="display:none;">
+    <h2>Forgot Username</h2>
+    <input type="email" id="forgot-username-email" placeholder="Enter your registered email">
+    <button onclick="forgotUsername()">Retrieve Username</button>
+    <div id="forgot-username-msg"></div>
+    <span class="toggle-link" onclick="showLogin()">Back to Login</span>
+</div>
+
+<!-- Password Reset Section (simulated link) -->
+<div id="reset-section" style="display:none;">
+    <h2>Reset Password</h2>
+    <input type="password" id="reset-new-password" placeholder="Enter new password">
+    <input type="password" id="reset-confirm-password" placeholder="Confirm new password">
+    <button onclick="resetPassword()">Set New Password</button>
+    <div id="reset-msg"></div>
+    <span class="toggle-link" onclick="showLogin()">Back to Login</span>
 </div>
 
 <!-- Task Section -->
@@ -199,15 +273,40 @@ input[type="checkbox"] {
     <button id="logout-btn" onclick="logout()">Logout</button>
     <h2 id="welcome"></h2>
     <div id="premium-features-area"></div>
+    <div id="theme-switcher" style="display:none;">
+      <label>Theme: 
+        <select id="themeSelect" onchange="switchTheme()">
+          <option value="default">Artful (Default)</option>
+          <option value="dark">Dark</option>
+        </select>
+      </label>
+    </div>
     <input type="text" id="taskInput" placeholder="Enter a new task">
+    <select id="recurringInput" style="display:none;">
+      <option value="">No Repeat</option>
+      <option value="daily">Repeat Daily</option>
+      <option value="weekly">Repeat Weekly</option>
+    </select>
+    <select id="priorityInput" style="display:none;">
+      <option value="">No Priority</option>
+      <option value="high">High</option>
+      <option value="medium">Medium</option>
+      <option value="low">Low</option>
+    </select>
+    <input type="file" id="attachmentInput" style="display:none;" accept="image/*,.pdf">
     <button onclick="addTask()">Add Task</button>
     <ul id="taskList"></ul>
     <button id="removeAll" onclick="removeAllTasks()">Remove All Tasks</button>
+    <button id="calendarBtn" onclick="toggleCalendar()" style="display:none;margin-top:10px;">Show Calendar View</button>
+    <div id="calendar-view"></div>
+    <button id="statsBtn" onclick="toggleStats()" style="display:none;margin-top:10px;">Show Productivity Stats</button>
+    <div id="stats-view"></div>
 </div>
 
 <script>
 let currentUser = null;
 let premiumTier = localStorage.getItem('premiumTier') || 'free';
+let resetUser = null; // for password reset simulation
 
 function selectPremium(tier) {
     premiumTier = tier;
@@ -224,6 +323,12 @@ function purchasePremium() {
 function showPremiumFeatures() {
     let msg = "";
     let features = [];
+    document.getElementById('theme-switcher').style.display = (premiumTier === 'bronze' || premiumTier === 'silver' || premiumTier === 'gold') ? "" : "none";
+    document.getElementById('recurringInput').style.display = (premiumTier === 'silver' || premiumTier === 'gold') ? "" : "none";
+    document.getElementById('attachmentInput').style.display = (premiumTier === 'silver' || premiumTier === 'gold') ? "" : "none";
+    document.getElementById('priorityInput').style.display = (premiumTier === 'gold') ? "" : "none";
+    document.getElementById('calendarBtn').style.display = (premiumTier === 'gold') ? "" : "none";
+    document.getElementById('statsBtn').style.display = (premiumTier === 'gold') ? "" : "none";
     if (premiumTier === 'bronze') {
         msg = "Reminders and Custom Themes unlocked!";
         features = [
@@ -255,6 +360,17 @@ function showPremiumFeatures() {
     document.getElementById('premium-msg').textContent = msg;
     let area = document.getElementById('premium-features-area');
     if (area) area.innerHTML = features.join('');
+}
+
+function switchTheme() {
+    let theme = document.getElementById('themeSelect').value;
+    document.body.className = (theme === "dark") ? "theme-dark" : "";
+    localStorage.setItem('theme', theme);
+}
+function loadTheme() {
+    let theme = localStorage.getItem('theme') || "default";
+    document.getElementById('themeSelect').value = theme;
+    switchTheme();
 }
 
 function saveUsers(users) {
@@ -354,6 +470,83 @@ function login() {
     showTasks();
 }
 
+// Forgot Password
+function showForgot() {
+    document.getElementById('login-section').style.display = "none";
+    document.getElementById('register-section').style.display = "none";
+    document.getElementById('forgot-section').style.display = "";
+    document.getElementById('forgot-msg').textContent = "";
+}
+function forgotPassword() {
+    const email = document.getElementById('forgot-email').value.trim().toLowerCase();
+    let users = getUsers();
+    let foundUser = null;
+    for (let u in users) {
+        if (users[u].email === email) {
+            foundUser = u;
+            break;
+        }
+    }
+    if (!foundUser) {
+        document.getElementById('forgot-msg').textContent = "No account found with that email.";
+        return;
+    }
+    // Simulate sending reset link via email
+    resetUser = foundUser;
+    document.getElementById('forgot-msg').innerHTML = "A password reset link has been sent to your email.<br><button onclick='showReset()'>Simulate Reset Link</button>";
+}
+function showReset() {
+    document.getElementById('forgot-section').style.display = "none";
+    document.getElementById('reset-section').style.display = "";
+    document.getElementById('reset-msg').textContent = "";
+}
+function resetPassword() {
+    if (!resetUser) return;
+    const newPass = document.getElementById('reset-new-password').value;
+    const confirmPass = document.getElementById('reset-confirm-password').value;
+    if (!newPass || !confirmPass) {
+        document.getElementById('reset-msg').textContent = "Fill in both fields.";
+        return;
+    }
+    if (newPass !== confirmPass) {
+        document.getElementById('reset-msg').textContent = "Passwords do not match.";
+        return;
+    }
+    if (newPass.length < 6) {
+        document.getElementById('reset-msg').textContent = "Password must be at least 6 characters.";
+        return;
+    }
+    let users = getUsers();
+    users[resetUser].password = newPass;
+    saveUsers(users);
+    document.getElementById('reset-msg').textContent = "Password reset! You may now log in.";
+    resetUser = null;
+}
+
+// Forgot Username
+function showForgotUsername() {
+    document.getElementById('login-section').style.display = "none";
+    document.getElementById('register-section').style.display = "none";
+    document.getElementById('forgot-username-section').style.display = "";
+    document.getElementById('forgot-username-msg').textContent = "";
+}
+function forgotUsername() {
+    const email = document.getElementById('forgot-username-email').value.trim().toLowerCase();
+    let users = getUsers();
+    let foundUser = null;
+    for (let u in users) {
+        if (users[u].email === email) {
+            foundUser = u;
+            break;
+        }
+    }
+    if (!foundUser) {
+        document.getElementById('forgot-username-msg').textContent = "No account found with that email.";
+        return;
+    }
+    document.getElementById('forgot-username-msg').textContent = "Your username is: " + foundUser;
+}
+
 // Logout
 function logout() {
     currentUser = null;
@@ -361,6 +554,9 @@ function logout() {
     document.getElementById('login-section').style.display = "";
     document.getElementById('task-section').style.display = "none";
     document.getElementById('register-section').style.display = "none";
+    document.getElementById('forgot-section').style.display = "none";
+    document.getElementById('forgot-username-section').style.display = "none";
+    document.getElementById('reset-section').style.display = "none";
     document.getElementById('login-username').value = "";
     document.getElementById('login-password').value = "";
     document.getElementById('login-msg').textContent = "";
@@ -370,24 +566,34 @@ function logout() {
 function showRegister() {
     document.getElementById('login-section').style.display = "none";
     document.getElementById('register-section').style.display = "";
+    document.getElementById('forgot-section').style.display = "none";
+    document.getElementById('forgot-username-section').style.display = "none";
+    document.getElementById('reset-section').style.display = "none";
     document.getElementById('register-msg').textContent = "";
 }
 function showLogin() {
     document.getElementById('register-section').style.display = "none";
     document.getElementById('login-section').style.display = "";
+    document.getElementById('forgot-section').style.display = "none";
+    document.getElementById('forgot-username-section').style.display = "none";
+    document.getElementById('reset-section').style.display = "none";
     document.getElementById('login-msg').textContent = "";
 }
 function showTasks() {
     document.getElementById('login-section').style.display = "none";
     document.getElementById('register-section').style.display = "none";
+    document.getElementById('forgot-section').style.display = "none";
+    document.getElementById('forgot-username-section').style.display = "none";
+    document.getElementById('reset-section').style.display = "none";
     document.getElementById('task-section').style.display = "";
     let users = getUsers();
     document.getElementById('welcome').textContent = `Welcome, ${users[currentUser].fullname}!`;
     showPremiumFeatures();
+    loadTheme();
     loadTasks();
 }
 
-// Tasks logic
+// --- Task logic with premium features ---
 function loadTasks() {
     let users = getUsers();
     let tasks = users[currentUser].tasks || [];
@@ -396,6 +602,11 @@ function loadTasks() {
     tasks.forEach((t, idx) => {
         const li = document.createElement('li');
         if (t.completed) li.classList.add('completed');
+        if (t.priority && premiumTier === 'gold') {
+            if (t.priority === 'high') li.classList.add('task-priority-high');
+            if (t.priority === 'medium') li.classList.add('task-priority-medium');
+            if (t.priority === 'low') li.classList.add('task-priority-low');
+        }
         const cb = document.createElement('input');
         cb.type = 'checkbox';
         cb.checked = t.completed;
@@ -406,6 +617,35 @@ function loadTasks() {
         };
         li.appendChild(cb);
         li.appendChild(document.createTextNode(" " + t.text));
+        if (t.attachment && (premiumTier === 'silver' || premiumTier === 'gold')) {
+            const a = document.createElement('a');
+            a.href = t.attachment;
+            a.target = "_blank";
+            a.className = "attachment-link";
+            a.textContent = "[Attachment]";
+            li.appendChild(a);
+        }
+        if (t.recurring && (premiumTier === 'silver' || premiumTier === 'gold')) {
+            const span = document.createElement('span');
+            span.style.marginLeft = "10px";
+            span.style.fontSize = "0.9em";
+            span.textContent = "(Repeats: " + t.recurring + ")";
+            li.appendChild(span);
+        }
+        if (t.priority && premiumTier === 'gold') {
+            const span = document.createElement('span');
+            span.style.marginLeft = "10px";
+            span.style.fontSize = "0.9em";
+            span.textContent = "(Priority: " + t.priority.charAt(0).toUpperCase() + t.priority.slice(1) + ")";
+            li.appendChild(span);
+        }
+        if (t.reminder && (premiumTier === 'bronze' || premiumTier === 'silver' || premiumTier === 'gold')) {
+            const span = document.createElement('span');
+            span.style.marginLeft = "10px";
+            span.style.fontSize = "0.9em";
+            span.textContent = "(⏰ Reminder set)";
+            li.appendChild(span);
+        }
         const btn = document.createElement('button');
         btn.textContent = "Remove";
         btn.className = "remove-btn";
@@ -417,39 +657,128 @@ function loadTasks() {
         li.appendChild(btn);
         ul.appendChild(li);
     });
+    if (premiumTier === 'gold') {
+        renderCalendar(tasks);
+        renderStats(tasks);
+    }
 }
-function saveAndReload() {
-    let users = getUsers();
-    users[currentUser].tasks = Array.from(document.getElementById('taskList').children).map(li => ({
-        text: li.childNodes[1].nodeValue.trim(),
-        completed: li.querySelector('input[type="checkbox"]').checked
-    }));
-    saveUsers(users);
-    loadTasks();
-}
+
 function addTask() {
     const input = document.getElementById('taskInput');
     let task = input.value.trim();
     if (!task) return;
-
-    // Example: Only Silver/Gold can add recurring tasks (feature not yet implemented)
-    if (document.getElementById('recurringInput') && document.getElementById('recurringInput').value) {
-        if (premiumTier !== 'silver' && premiumTier !== 'gold') {
-            alert("Recurring tasks are a Silver or Gold feature. Upgrade to unlock!");
-            return;
+    let users = getUsers();
+    let recurring = "";
+    if ((premiumTier === 'silver' || premiumTier === 'gold')) {
+        recurring = document.getElementById('recurringInput').value;
+    }
+    let priority = "";
+    if (premiumTier === 'gold') {
+        priority = document.getElementById('priorityInput').value;
+    }
+    let attachment = "";
+    if ((premiumTier === 'silver' || premiumTier === 'gold')) {
+        const fileInput = document.getElementById('attachmentInput');
+        if (fileInput.files.length > 0) {
+            const file = fileInput.files[0];
+            attachment = URL.createObjectURL(file);
+        }
+        fileInput.value = "";
+    }
+    let reminder = null;
+    if (premiumTier === 'bronze' || premiumTier === 'silver' || premiumTier === 'gold') {
+        let reminderTime = prompt("Set a reminder for this task? (Enter date/time as YYYY-MM-DD HH:MM or leave blank)");
+        if (reminderTime) {
+            let reminderDate = new Date(reminderTime.replace(" ", "T"));
+            if (!isNaN(reminderDate.getTime())) {
+                reminder = reminderDate.toISOString();
+                scheduleReminder(task, reminderDate);
+            }
         }
     }
-
-    let users = getUsers();
-    users[currentUser].tasks.push({text: task, completed: false});
+    users[currentUser].tasks.push({
+        text: task,
+        completed: false,
+        recurring: recurring || undefined,
+        priority: priority || undefined,
+        attachment: attachment || undefined,
+        reminder: reminder || undefined,
+        created: new Date().toISOString()
+    });
     saveUsers(users);
     input.value = '';
     loadTasks();
 }
+
+function scheduleReminder(task, dateObj) {
+    if (!("Notification" in window)) return;
+    Notification.requestPermission().then(function(permission) {
+        if (permission === "granted") {
+            let now = new Date();
+            let delay = dateObj.getTime() - now.getTime();
+            if (delay > 0) {
+                setTimeout(() => {
+                    new Notification("Task Reminder", { body: task });
+                }, delay);
+            }
+        }
+    });
+}
+
 function removeAllTasks() {
     let users = getUsers();
     users[currentUser].tasks = [];
     saveUsers(users);
+    loadTasks();
+}
+
+// Calendar View (Gold)
+function renderCalendar(tasks) {
+    let calendar = document.getElementById('calendar-view');
+    if (!calendar) return;
+    calendar.style.display = "none";
+    if (!document.getElementById('calendarBtn').classList.contains('active')) return;
+    calendar.style.display = "";
+    let html = "<h3>Calendar View</h3>";
+    let days = {};
+    tasks.forEach(t => {
+        let date = t.created ? t.created.slice(0,10) : "Unknown";
+        if (!days[date]) days[date] = [];
+        days[date].push(t);
+    });
+    html += "<ul>";
+    Object.keys(days).sort().forEach(date => {
+        html += `<li><b>${date}</b>: `;
+        html += days[date].map(t => t.text).join(", ");
+        html += "</li>";
+    });
+    html += "</ul>";
+    calendar.innerHTML = html;
+}
+function toggleCalendar() {
+    let btn = document.getElementById('calendarBtn');
+    btn.classList.toggle('active');
+    loadTasks();
+}
+
+// Productivity Stats (Gold)
+function renderStats(tasks) {
+    let stats = document.getElementById('stats-view');
+    if (!stats) return;
+    stats.style.display = "none";
+    if (!document.getElementById('statsBtn').classList.contains('active')) return;
+    stats.style.display = "";
+    let total = tasks.length;
+    let completed = tasks.filter(t => t.completed).length;
+    let percent = total ? Math.round((completed/total)*100) : 0;
+    stats.innerHTML = `<h3>Productivity Stats</h3>
+        <p>Total Tasks: ${total}</p>
+        <p>Completed: ${completed}</p>
+        <p>Completion Rate: ${percent}%</p>`;
+}
+function toggleStats() {
+    let btn = document.getElementById('statsBtn');
+    btn.classList.toggle('active');
     loadTasks();
 }
 
@@ -462,6 +791,7 @@ window.onload = function() {
     }
     premiumTier = localStorage.getItem('premiumTier') || 'free';
     showPremiumFeatures();
+    if (document.getElementById('themeSelect')) loadTheme();
 };
 </script>
 </body>
