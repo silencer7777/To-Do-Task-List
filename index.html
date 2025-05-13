@@ -115,7 +115,7 @@ input[type="checkbox"] {
 <div id="register-section" style="display:none;">
     <h2>Create Your Account</h2>
     <input type="text" id="reg-fullname" placeholder="Full Name" required>
-    <input type="date" id="reg-dob" placeholder="Date of Birth" required>
+    <input type="date" id="reg-dob" placeholder="Date of Birth" required min="1930-01-01" max="2025-12-31">
     <input type="email" id="reg-email" placeholder="Email" required>
     <input type="text" id="reg-username" placeholder="Username" required>
     <input type="password" id="reg-password" placeholder="Password" required>
@@ -340,5 +340,6 @@ window.onload = function() {
 </script>
 </body>
 </html>
+
 
 
