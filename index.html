@@ -308,6 +308,36 @@ let currentUser = null;
 let premiumTier = localStorage.getItem('premiumTier') || 'free';
 let resetUser = null; // for password reset simulation
 
+// --- Remember Me Implementation ---
+function saveSession(username, remember) {
+    if (remember) {
+        localStorage.setItem('sessionUser', username);
+        localStorage.setItem('rememberMe', 'true');
+        sessionStorage.removeItem('sessionUser');
+    } else {
+        sessionStorage.setItem('sessionUser', username);
+        localStorage.removeItem('rememberMe');
+        localStorage.removeItem('sessionUser');
+    }
+}
+function clearSession() {
+    sessionStorage.removeItem('sessionUser');
+    if (!localStorage.getItem('rememberMe')) {
+        localStorage.removeItem('sessionUser');
+    }
+}
+function getSessionUser() {
+    let sessionUser = sessionStorage.getItem('sessionUser');
+    let rememberedUser = localStorage.getItem('sessionUser');
+    let rememberMe = localStorage.getItem('rememberMe');
+    if (sessionUser) return sessionUser;
+    if (rememberMe && rememberedUser) return rememberedUser;
+    return null;
+}
+
+// Premium logic, registration, login, forgot, reset, and all features...
+// (All your previously provided JavaScript code, unchanged, except for the following updates)
+
 function selectPremium(tier) {
     premiumTier = tier;
 }
@@ -378,20 +408,6 @@ function saveUsers(users) {
 }
 function getUsers() {
     return JSON.parse(localStorage.getItem('users') || '{}');
-}
-function saveSession(username, remember) {
-    if (remember) {
-        localStorage.setItem('sessionUser', username);
-    } else {
-        sessionStorage.setItem('sessionUser', username);
-    }
-}
-function clearSession() {
-    localStorage.removeItem('sessionUser');
-    sessionStorage.removeItem('sessionUser');
-}
-function getSession() {
-    return localStorage.getItem('sessionUser') || sessionStorage.getItem('sessionUser');
 }
 
 // Registration
@@ -491,7 +507,6 @@ function forgotPassword() {
         document.getElementById('forgot-msg').textContent = "No account found with that email.";
         return;
     }
-    // Simulate sending reset link via email
     resetUser = foundUser;
     document.getElementById('forgot-msg').innerHTML = "A password reset link has been sent to your email.<br><button onclick='showReset()'>Simulate Reset Link</button>";
 }
@@ -550,7 +565,10 @@ function forgotUsername() {
 // Logout
 function logout() {
     currentUser = null;
-    clearSession();
+    sessionStorage.removeItem('sessionUser');
+    if (!localStorage.getItem('rememberMe')) {
+        localStorage.removeItem('sessionUser');
+    }
     document.getElementById('login-section').style.display = "";
     document.getElementById('task-section').style.display = "none";
     document.getElementById('register-section').style.display = "none";
@@ -782,11 +800,11 @@ function toggleStats() {
     loadTasks();
 }
 
-// On page load: auto-login if session exists
+// On page load: auto-login if session exists or "Remember Me" is set
 window.onload = function() {
-    let sessionUser = getSession();
-    if (sessionUser && getUsers()[sessionUser]) {
-        currentUser = sessionUser;
+    let user = getSessionUser();
+    if (user && getUsers()[user]) {
+        currentUser = user;
         showTasks();
     }
     premiumTier = localStorage.getItem('premiumTier') || 'free';
