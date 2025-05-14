@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Artful Task-List</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
 body {
     font-family: 'Segoe UI', Arial, sans-serif;
@@ -64,7 +64,7 @@ body {
     margin-top: 12px;
     display: inline-block;
 }
-#login-section, #register-section, #forgot-section, #forgot-username-section, #reset-section {
+#login-section, #register-section, #forgot-section, #forgot-username-section, #reset-section, #task-section {
     background: rgba(255,255,255,0.85);
     border-radius: 16px;
     box-shadow: 0 4px 24px rgba(106,5,114,0.12);
@@ -80,6 +80,17 @@ body {
     border: 1px solid #c471f5;
     width: 100%;
     font-size: 1em;
+    box-sizing: border-box;
+}
+#remember-me-label {
+    display: flex;
+    align-items: center;
+    font-size: 0.98em;
+    margin-top: 8px;
+}
+input[type="checkbox"] {
+    width: auto;
+    margin-right: 8px;
 }
 button {
     background: #6a0572;
@@ -89,6 +100,45 @@ button {
     padding: 10px 20px;
     cursor: pointer;
     margin-top: 10px;
+}
+#taskList {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+li {
+    display: flex;
+    align-items: center;
+    padding: 12px;
+    border-bottom: 1px solid #eee;
+    background: linear-gradient(90deg, #f3e7e9 0%, #e3eeff 100%);
+    border-radius: 8px;
+    margin-bottom: 8px;
+    box-shadow: 0 2px 8px rgba(196,113,245,0.07);
+    cursor: pointer;
+}
+li.completed {
+    text-decoration: line-through;
+    color: #888;
+    opacity: 0.7;
+}
+.remove-btn {
+    margin-left: auto;
+    background: #ff4d4d;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 7px 14px;
+    cursor: pointer;
+}
+#logout-btn {
+    background: #6a0572;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    padding: 10px 20px;
+    cursor: pointer;
+    margin-bottom: 20px;
 }
 </style>
 </head>
@@ -119,55 +169,79 @@ button {
 
 <!-- Login Section -->
 <div id="login-section">
+  <form id="login-form" autocomplete="on" onsubmit="login(event)">
     <h2>Login</h2>
-    <input type="text" id="login-username" placeholder="Username or Email">
-    <input type="password" id="login-password" placeholder="Password">
-    <button onclick="login()">Login</button>
+    <input type="text" id="login-username" placeholder="Username or Email" autocomplete="username" required>
+    <input type="password" id="login-password" placeholder="Password" autocomplete="current-password" required>
+    <label id="remember-me-label"><input type="checkbox" id="login-remember">Remember Me</label>
+    <button type="submit">Login</button>
     <div id="login-msg"></div>
     <span class="toggle-link" onclick="showRegister()">New user? Create an account</span>
     <br>
     <span class="forgot-link" onclick="showForgot()">Forgot Password?</span> | 
     <span class="forgot-link" onclick="showForgotUsername()">Forgot Username?</span>
+  </form>
 </div>
 
 <!-- Registration Section -->
 <div id="register-section" style="display:none;">
+  <form id="register-form" autocomplete="on" onsubmit="register(event)">
     <h2>Create Your Account</h2>
-    <input type="text" id="reg-username" placeholder="Username" required>
-    <input type="email" id="reg-email" placeholder="Email" required>
-    <input type="password" id="reg-password" placeholder="Password" required>
-    <input type="password" id="reg-confirm" placeholder="Confirm Password" required>
-    <button onclick="register()">Create Account</button>
+    <input type="text" id="reg-username" placeholder="Username" required autocomplete="username">
+    <input type="email" id="reg-email" placeholder="Email" required autocomplete="email">
+    <input type="password" id="reg-password" placeholder="Password" required autocomplete="new-password">
+    <input type="password" id="reg-confirm" placeholder="Confirm Password" required autocomplete="new-password">
+    <label id="remember-me-label"><input type="checkbox" id="reg-remember">Remember Me</label>
+    <button type="submit">Create Account</button>
     <div id="register-msg"></div>
     <span class="toggle-link" onclick="showLogin()">Already have an account? Log in</span>
+  </form>
 </div>
 
 <!-- Forgot Password Section -->
 <div id="forgot-section" style="display:none;">
+  <form id="forgot-form" onsubmit="forgotPassword(event)">
     <h2>Forgot Password</h2>
-    <input type="email" id="forgot-email" placeholder="Enter your registered email">
-    <button onclick="forgotPassword()">Send Reset Link</button>
+    <input type="email" id="forgot-email" placeholder="Enter your registered email" required>
+    <button type="submit">Send Reset Link</button>
     <div id="forgot-msg"></div>
     <span class="toggle-link" onclick="showLogin()">Back to Login</span>
+  </form>
 </div>
 
 <!-- Forgot Username Section -->
 <div id="forgot-username-section" style="display:none;">
+  <form id="forgot-username-form" onsubmit="forgotUsername(event)">
     <h2>Forgot Username</h2>
-    <input type="email" id="forgot-username-email" placeholder="Enter your registered email">
-    <button onclick="forgotUsername()">Retrieve Username</button>
+    <input type="email" id="forgot-username-email" placeholder="Enter your registered email" required>
+    <button type="submit">Retrieve Username</button>
     <div id="forgot-username-msg"></div>
     <span class="toggle-link" onclick="showLogin()">Back to Login</span>
+  </form>
 </div>
 
 <!-- Password Reset Section (simulated link for demo) -->
 <div id="reset-section" style="display:none;">
+  <form id="reset-form" onsubmit="resetPassword(event)">
     <h2>Reset Password</h2>
-    <input type="password" id="reset-new-password" placeholder="Enter new password">
-    <input type="password" id="reset-confirm-password" placeholder="Confirm new password">
-    <button onclick="resetPassword()">Set New Password</button>
+    <input type="password" id="reset-new-password" placeholder="Enter new password" required>
+    <input type="password" id="reset-confirm-password" placeholder="Confirm new password" required>
+    <button type="submit">Set New Password</button>
     <div id="reset-msg"></div>
     <span class="toggle-link" onclick="showLogin()">Back to Login</span>
+  </form>
+</div>
+
+<!-- Task Section -->
+<div id="task-section" style="display:none;">
+  <button id="logout-btn" onclick="logout()">Logout</button>
+  <h2 id="welcome"></h2>
+  <form id="task-form" onsubmit="addTask(event)">
+    <input type="text" id="taskInput" placeholder="Enter a new task" required>
+    <button type="submit">Add Task</button>
+  </form>
+  <ul id="taskList"></ul>
+  <button onclick="removeAllTasks()">Remove All Tasks</button>
 </div>
 
 <!-- Vanta.js dependencies and background logic -->
@@ -185,13 +259,14 @@ VANTA.WAVES({
 });
 </script>
 <script>
-// Section toggling logic
+// Section toggling
 function showLogin() {
     document.getElementById('login-section').style.display = '';
     document.getElementById('register-section').style.display = 'none';
     document.getElementById('forgot-section').style.display = 'none';
     document.getElementById('forgot-username-section').style.display = 'none';
     document.getElementById('reset-section').style.display = 'none';
+    document.getElementById('task-section').style.display = 'none';
 }
 function showRegister() {
     document.getElementById('login-section').style.display = 'none';
@@ -199,6 +274,7 @@ function showRegister() {
     document.getElementById('forgot-section').style.display = 'none';
     document.getElementById('forgot-username-section').style.display = 'none';
     document.getElementById('reset-section').style.display = 'none';
+    document.getElementById('task-section').style.display = 'none';
 }
 function showForgot() {
     document.getElementById('login-section').style.display = 'none';
@@ -206,6 +282,7 @@ function showForgot() {
     document.getElementById('forgot-section').style.display = '';
     document.getElementById('forgot-username-section').style.display = 'none';
     document.getElementById('reset-section').style.display = 'none';
+    document.getElementById('task-section').style.display = 'none';
 }
 function showForgotUsername() {
     document.getElementById('login-section').style.display = 'none';
@@ -213,6 +290,7 @@ function showForgotUsername() {
     document.getElementById('forgot-section').style.display = 'none';
     document.getElementById('forgot-username-section').style.display = '';
     document.getElementById('reset-section').style.display = 'none';
+    document.getElementById('task-section').style.display = 'none';
 }
 function showReset() {
     document.getElementById('login-section').style.display = 'none';
@@ -220,6 +298,18 @@ function showReset() {
     document.getElementById('forgot-section').style.display = 'none';
     document.getElementById('forgot-username-section').style.display = 'none';
     document.getElementById('reset-section').style.display = '';
+    document.getElementById('task-section').style.display = 'none';
+}
+function showTasks() {
+    document.getElementById('login-section').style.display = 'none';
+    document.getElementById('register-section').style.display = 'none';
+    document.getElementById('forgot-section').style.display = 'none';
+    document.getElementById('forgot-username-section').style.display = 'none';
+    document.getElementById('reset-section').style.display = 'none';
+    document.getElementById('task-section').style.display = '';
+    var user = getCurrentUser();
+    document.getElementById('welcome').textContent = user ? "Welcome, " + user.username + "!" : "";
+    loadTasks();
 }
 
 // Premium logic (simulated)
@@ -231,24 +321,46 @@ function purchasePremium() {
     msg.textContent = "Thank you for upgrading! (Simulated)";
 }
 
-// Demo user storage (for demo only)
+// User storage
 function getUsers() {
     return JSON.parse(localStorage.getItem('users') || '[]');
 }
 function setUsers(users) {
     localStorage.setItem('users', JSON.stringify(users));
 }
+function getCurrentUser() {
+    return JSON.parse(localStorage.getItem('currentUser') || 'null');
+}
+function setCurrentUser(user, remember) {
+    if (user) {
+        localStorage.setItem('currentUser', JSON.stringify(user));
+        if (remember) localStorage.setItem('rememberMe', 'true');
+        else localStorage.removeItem('rememberMe');
+    } else {
+        localStorage.removeItem('currentUser');
+        localStorage.removeItem('rememberMe');
+    }
+}
+function isRemembered() {
+    return localStorage.getItem('rememberMe') === 'true';
+}
 
 // Registration logic
-function register() {
+function register(event) {
+    event.preventDefault();
     var username = document.getElementById('reg-username').value.trim();
     var email = document.getElementById('reg-email').value.trim();
     var password = document.getElementById('reg-password').value;
     var confirm = document.getElementById('reg-confirm').value;
+    var remember = document.getElementById('reg-remember').checked;
     var msg = document.getElementById('register-msg');
     msg.textContent = '';
     if (!username || !email || !password || !confirm) {
         msg.textContent = "Please fill in all fields.";
+        return;
+    }
+    if (password.length < 6) {
+        msg.textContent = "Password must be at least 6 characters.";
         return;
     }
     if (password !== confirm) {
@@ -264,16 +376,20 @@ function register() {
         msg.textContent = "Email already registered.";
         return;
     }
-    users.push({ username, email, password });
+    var user = { username, email, password };
+    users.push(user);
     setUsers(users);
-    msg.textContent = "Registration successful! Please log in.";
-    setTimeout(showLogin, 1200);
+    setCurrentUser(user, remember);
+    msg.textContent = "Registration successful! Logging you in...";
+    setTimeout(showTasks, 1200);
 }
 
 // Login logic
-function login() {
+function login(event) {
+    event.preventDefault();
     var username = document.getElementById('login-username').value.trim();
     var password = document.getElementById('login-password').value;
+    var remember = document.getElementById('login-remember').checked;
     var msg = document.getElementById('login-msg');
     msg.textContent = '';
     var users = getUsers();
@@ -282,12 +398,20 @@ function login() {
         msg.textContent = "Invalid username/email or password.";
         return;
     }
+    setCurrentUser(user, remember);
     msg.textContent = "Login successful!";
-    // In a real app, redirect or show the task section here
+    setTimeout(showTasks, 500);
+}
+
+// Logout logic
+function logout() {
+    setCurrentUser(null, false);
+    showLogin();
 }
 
 // Forgot Password logic (simulated)
-function forgotPassword() {
+function forgotPassword(event) {
+    event.preventDefault();
     var email = document.getElementById('forgot-email').value.trim();
     var msg = document.getElementById('forgot-msg');
     var users = getUsers();
@@ -301,12 +425,17 @@ function forgotPassword() {
 }
 
 // Password reset logic (simulated - resets first user)
-function resetPassword() {
+function resetPassword(event) {
+    event.preventDefault();
     var newPass = document.getElementById('reset-new-password').value;
     var confirm = document.getElementById('reset-confirm-password').value;
     var msg = document.getElementById('reset-msg');
     if (!newPass || !confirm) {
         msg.textContent = "Please fill in both fields.";
+        return;
+    }
+    if (newPass.length < 6) {
+        msg.textContent = "Password must be at least 6 characters.";
         return;
     }
     if (newPass !== confirm) {
@@ -323,7 +452,8 @@ function resetPassword() {
 }
 
 // Forgot Username logic (simulated)
-function forgotUsername() {
+function forgotUsername(event) {
+    event.preventDefault();
     var email = document.getElementById('forgot-username-email').value.trim();
     var msg = document.getElementById('forgot-username-msg');
     var users = getUsers();
@@ -335,8 +465,65 @@ function forgotUsername() {
     msg.textContent = "Your username is: " + user.username;
 }
 
-// Show login on load
-window.onload = showLogin;
+// Task logic
+function getTasks() {
+    var user = getCurrentUser();
+    if (!user) return [];
+    return JSON.parse(localStorage.getItem('tasks_' + user.username) || '[]');
+}
+function setTasks(tasks) {
+    var user = getCurrentUser();
+    if (!user) return;
+    localStorage.setItem('tasks_' + user.username, JSON.stringify(tasks));
+}
+function addTask(event) {
+    event.preventDefault();
+    var input = document.getElementById('taskInput');
+    var text = input.value.trim();
+    if (!text) return;
+    var tasks = getTasks();
+    tasks.push({ text, completed: false });
+    setTasks(tasks);
+    input.value = '';
+    loadTasks();
+}
+function loadTasks() {
+    var tasks = getTasks();
+    var ul = document.getElementById('taskList');
+    ul.innerHTML = '';
+    tasks.forEach((task, i) => {
+        var li = document.createElement('li');
+        li.textContent = task.text;
+        if (task.completed) li.classList.add('completed');
+        li.onclick = function() {
+            tasks[i].completed = !tasks[i].completed;
+            setTasks(tasks);
+            loadTasks();
+        };
+        var btn = document.createElement('button');
+        btn.textContent = "Remove";
+        btn.className = "remove-btn";
+        btn.onclick = function(e) {
+            e.stopPropagation();
+            tasks.splice(i, 1);
+            setTasks(tasks);
+            loadTasks();
+        };
+        li.appendChild(btn);
+        ul.appendChild(li);
+    });
+}
+function removeAllTasks() {
+    setTasks([]);
+    loadTasks();
+}
+
+// On page load, show login or task section
+window.onload = function() {
+    if (getCurrentUser() && isRemembered()) showTasks();
+    else showLogin();
+};
 </script>
 </body>
 </html>
+
