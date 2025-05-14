@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Artful Task-List</title>
 <style>
+/* ... (your CSS from previous answers, unchanged) ... */
 body {
     font-family: 'Segoe UI', Arial, sans-serif;
     background: linear-gradient(135deg, #f3e7e9 0%, #e3eeff 100%);
@@ -301,40 +302,280 @@ body.theme-dark #stats-view {
     <div id="stats-view"></div>
 </div>
 
-<!-- Your original JS logic here (unchanged) -->
-<script>
-// ... (All your JavaScript code remains unchanged here)
-</script>
-
 <!-- Vanta.js dependencies and background logic -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r121/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/vanta@latest/dist/vanta.waves.min.js"></script>
 <script>
   function isMobileApp() {
-    // Set window.isMobileApp = true in your mobile app (e.g., using Cordova/Capacitor/WebView injection)
     return window.isMobileApp === true;
   }
-
   if (!isMobileApp()) {
-    // Live animated background for website with dark purple theme
     VANTA.WAVES({
       el: "#art-bg",
-      color: 0x3a0ca3,          // Dark purple waves
+      color: 0x3a0ca3,
       shininess: 60,
       waveHeight: 25,
       waveSpeed: 1,
       zoom: 1.2,
-      backgroundColor: 0x1a0a3a // Deep purple background
+      backgroundColor: 0x1a0a3a
     });
   } else {
-    // Static background for mobile app fallback
     var bg = document.getElementById('art-bg');
     bg.style.background = "url('https://images.unsplash.com/photo-1464983953574-0892a716854b?auto=format&fit=crop&w=800&q=80') no-repeat center center";
     bg.style.backgroundSize = "cover";
     bg.style.opacity = "1";
   }
 </script>
+
+<!-- App JavaScript Logic -->
+<script>
+function showLogin() {
+    document.getElementById('login-section').style.display = '';
+    document.getElementById('register-section').style.display = 'none';
+    document.getElementById('forgot-section').style.display = 'none';
+    document.getElementById('forgot-username-section').style.display = 'none';
+    document.getElementById('reset-section').style.display = 'none';
+}
+function showRegister() {
+    document.getElementById('login-section').style.display = 'none';
+    document.getElementById('register-section').style.display = '';
+    document.getElementById('forgot-section').style.display = 'none';
+    document.getElementById('forgot-username-section').style.display = 'none';
+    document.getElementById('reset-section').style.display = 'none';
+}
+function showForgot() {
+    document.getElementById('login-section').style.display = 'none';
+    document.getElementById('register-section').style.display = 'none';
+    document.getElementById('forgot-section').style.display = '';
+    document.getElementById('forgot-username-section').style.display = 'none';
+    document.getElementById('reset-section').style.display = 'none';
+}
+function showForgotUsername() {
+    document.getElementById('login-section').style.display = 'none';
+    document.getElementById('register-section').style.display = 'none';
+    document.getElementById('forgot-section').style.display = 'none';
+    document.getElementById('forgot-username-section').style.display = '';
+    document.getElementById('reset-section').style.display = 'none';
+}
+function showReset() {
+    document.getElementById('login-section').style.display = 'none';
+    document.getElementById('register-section').style.display = 'none';
+    document.getElementById('forgot-section').style.display = 'none';
+    document.getElementById('forgot-username-section').style.display = 'none';
+    document.getElementById('reset-section').style.display = '';
+}
+
+// Simulated user DB in localStorage
+function getUsers() {
+    return JSON.parse(localStorage.getItem('users') || '[]');
+}
+function setUsers(users) {
+    localStorage.setItem('users', JSON.stringify(users));
+}
+function getCurrentUser() {
+    return JSON.parse(localStorage.getItem('currentUser') || 'null');
+}
+function setCurrentUser(user) {
+    if (user) localStorage.setItem('currentUser', JSON.stringify(user));
+    else localStorage.removeItem('currentUser');
+}
+
+// Registration
+function register() {
+    var fullname = document.getElementById('reg-fullname').value.trim();
+    var dob = document.getElementById('reg-dob').value.trim();
+    var email = document.getElementById('reg-email').value.trim();
+    var username = document.getElementById('reg-username').value.trim();
+    var password = document.getElementById('reg-password').value;
+    var confirm = document.getElementById('reg-confirm').value;
+    var msg = document.getElementById('register-msg');
+    msg.textContent = '';
+
+    if (!fullname || !dob || !email || !username || !password || !confirm) {
+        msg.textContent = "Please fill in all fields.";
+        return;
+    }
+    if (password !== confirm) {
+        msg.textContent = "Passwords do not match.";
+        return;
+    }
+    var users = getUsers();
+    if (users.find(u => u.username === username)) {
+        msg.textContent = "Username already exists.";
+        return;
+    }
+    if (users.find(u => u.email === email)) {
+        msg.textContent = "Email already registered.";
+        return;
+    }
+    var user = { fullname, dob, email, username, password };
+    users.push(user);
+    setUsers(users);
+    msg.textContent = "Registration successful! Please log in.";
+    setTimeout(showLogin, 1200);
+}
+
+// Login
+function login() {
+    var username = document.getElementById('login-username').value.trim();
+    var password = document.getElementById('login-password').value;
+    var msg = document.getElementById('login-msg');
+    msg.textContent = '';
+    var users = getUsers();
+    var user = users.find(u => (u.username === username || u.email === username) && u.password === password);
+    if (!user) {
+        msg.textContent = "Invalid username/email or password.";
+        return;
+    }
+    setCurrentUser(user);
+    msg.textContent = "Login successful!";
+    setTimeout(() => {
+        showTaskSection();
+    }, 500);
+}
+
+// Logout
+function logout() {
+    setCurrentUser(null);
+    document.getElementById('task-section').style.display = 'none';
+    showLogin();
+}
+
+// Show task section
+function showTaskSection() {
+    document.getElementById('login-section').style.display = 'none';
+    document.getElementById('register-section').style.display = 'none';
+    document.getElementById('forgot-section').style.display = 'none';
+    document.getElementById('forgot-username-section').style.display = 'none';
+    document.getElementById('reset-section').style.display = 'none';
+    document.getElementById('task-section').style.display = '';
+    var user = getCurrentUser();
+    document.getElementById('welcome').textContent = user ? "Welcome, " + user.fullname + "!" : "Welcome!";
+    loadTasks();
+}
+
+// Forgot Password (simulated)
+function forgotPassword() {
+    var email = document.getElementById('forgot-email').value.trim();
+    var msg = document.getElementById('forgot-msg');
+    var users = getUsers();
+    var user = users.find(u => u.email === email);
+    if (!user) {
+        msg.textContent = "No account found with that email.";
+        return;
+    }
+    msg.textContent = "Password reset link sent! (Simulated)";
+    setTimeout(showReset, 1200);
+}
+function resetPassword() {
+    var newPass = document.getElementById('reset-new-password').value;
+    var confirm = document.getElementById('reset-confirm-password').value;
+    var msg = document.getElementById('reset-msg');
+    if (!newPass || !confirm) {
+        msg.textContent = "Please fill in both fields.";
+        return;
+    }
+    if (newPass !== confirm) {
+        msg.textContent = "Passwords do not match.";
+        return;
+    }
+    // Simulate password reset for first user in DB
+    var users = getUsers();
+    if (users.length > 0) {
+        users[0].password = newPass;
+        setUsers(users);
+        msg.textContent = "Password reset! Please log in.";
+        setTimeout(showLogin, 1200);
+    }
+}
+
+// Forgot Username (simulated)
+function forgotUsername() {
+    var email = document.getElementById('forgot-username-email').value.trim();
+    var msg = document.getElementById('forgot-username-msg');
+    var users = getUsers();
+    var user = users.find(u => u.email === email);
+    if (!user) {
+        msg.textContent = "No account found with that email.";
+        return;
+    }
+    msg.textContent = "Your username is: " + user.username;
+}
+
+// Task logic
+function getTasks() {
+    var user = getCurrentUser();
+    if (!user) return [];
+    return JSON.parse(localStorage.getItem('tasks_' + user.username) || '[]');
+}
+function setTasks(tasks) {
+    var user = getCurrentUser();
+    if (!user) return;
+    localStorage.setItem('tasks_' + user.username, JSON.stringify(tasks));
+}
+function addTask() {
+    var input = document.getElementById('taskInput');
+    var text = input.value.trim();
+    if (!text) return;
+    var tasks = getTasks();
+    tasks.push({ text, completed: false });
+    setTasks(tasks);
+    input.value = '';
+    loadTasks();
+}
+function loadTasks() {
+    var tasks = getTasks();
+    var ul = document.getElementById('taskList');
+    ul.innerHTML = '';
+    tasks.forEach((task, i) => {
+        var li = document.createElement('li');
+        li.textContent = task.text;
+        if (task.completed) li.classList.add('completed');
+        li.onclick = function() {
+            tasks[i].completed = !tasks[i].completed;
+            setTasks(tasks);
+            loadTasks();
+        };
+        var btn = document.createElement('button');
+        btn.textContent = "Remove";
+        btn.className = "remove-btn";
+        btn.onclick = function(e) {
+            e.stopPropagation();
+            tasks.splice(i, 1);
+            setTasks(tasks);
+            loadTasks();
+        };
+        li.appendChild(btn);
+        ul.appendChild(li);
+    });
+}
+function removeAllTasks() {
+    setTasks([]);
+    loadTasks();
+}
+
+// Premium (simulated)
+function selectPremium(level) {
+    document.getElementById('premium-msg').textContent = "Selected: " + level.charAt(0).toUpperCase() + level.slice(1);
+}
+function purchasePremium() {
+    var msg = document.getElementById('premium-msg');
+    msg.textContent = "Thank you for upgrading! (Simulated)";
+}
+
+// Theme switcher (simulated)
+function switchTheme() {
+    var val = document.getElementById('themeSelect').value;
+    if (val === "dark") document.body.classList.add('theme-dark');
+    else document.body.classList.remove('theme-dark');
+}
+
+// On page load, show login or task section
+window.onload = function() {
+    if (getCurrentUser()) showTaskSection();
+    else showLogin();
+};
+</script>
 </body>
 </html>
-
 
