@@ -6,12 +6,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
 body {
-    font-family: 'Segoe UI', Arial, sans-serif;
-    background: linear-gradient(135deg, #f3e7e9 0%, #e3eeff 100%);
-    color: #222;
+    font-family: Arial, sans-serif;
+    background: #1a0a3a;
+    color: #fff;
     margin: 0;
     min-height: 100vh;
-    transition: background 0.5s;
 }
 .art-bg {
     position: fixed;
@@ -36,34 +35,12 @@ body {
     max-width:400px;
     margin:32px auto 24px auto;
     padding:24px;
+    color:#222;
 }
-#premium-section label {
-    display: block;
-    margin-bottom: 8px;
-    font-size: 1.05em;
-}
-#premium-section button {
-    margin-top: 10px;
-    background: #6a0572;
-    color: #fff;
-    border: none;
-    border-radius: 6px;
-    padding: 10px 20px;
-    cursor: pointer;
-}
-#premium-msg {
-    margin-top:8px;
-    color:#6a0572;
-    font-weight: bold;
-}
-.toggle-link, .forgot-link {
-    color: #6a0572;
-    cursor: pointer;
-    text-decoration: underline;
-    font-size: 0.95em;
-    margin-top: 12px;
-    display: inline-block;
-}
+#premium-section label { display: block; margin-bottom: 8px; font-size: 1.05em; }
+#premium-section button { margin-top: 10px; background: #6a0572; color: #fff; border: none; border-radius: 6px; padding: 10px 20px; cursor: pointer; }
+#premium-msg { margin-top:8px; color:#6a0572; font-weight: bold; }
+.toggle-link, .forgot-link { color: #6a0572; cursor: pointer; text-decoration: underline; font-size: 0.95em; margin-top: 12px; display: inline-block; }
 #login-section, #register-section, #forgot-section, #forgot-username-section, #reset-section, #task-section {
     background: rgba(255,255,255,0.85);
     border-radius: 16px;
@@ -71,7 +48,7 @@ body {
     max-width: 400px;
     margin: 0 auto 24px auto;
     padding: 32px;
-    transition: box-shadow 0.3s;
+    color: #222;
 }
 #login-section input, #register-section input, #forgot-section input, #forgot-username-section input, #reset-section input {
     margin: 8px 0;
@@ -82,16 +59,8 @@ body {
     font-size: 1em;
     box-sizing: border-box;
 }
-#remember-me-label {
-    display: flex;
-    align-items: center;
-    font-size: 0.98em;
-    margin-top: 8px;
-}
-input[type="checkbox"] {
-    width: auto;
-    margin-right: 8px;
-}
+#remember-me-label { display: flex; align-items: center; font-size: 0.98em; margin-top: 8px; }
+input[type="checkbox"] { width: auto; margin-right: 8px; }
 button {
     background: #6a0572;
     color: #fff;
@@ -101,11 +70,7 @@ button {
     cursor: pointer;
     margin-top: 10px;
 }
-#taskList {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-}
+#taskList { list-style: none; padding: 0; margin: 0; }
 li {
     display: flex;
     align-items: center;
@@ -115,31 +80,12 @@ li {
     border-radius: 8px;
     margin-bottom: 8px;
     box-shadow: 0 2px 8px rgba(196,113,245,0.07);
+    color:#222;
     cursor: pointer;
 }
-li.completed {
-    text-decoration: line-through;
-    color: #888;
-    opacity: 0.7;
-}
-.remove-btn {
-    margin-left: auto;
-    background: #ff4d4d;
-    color: white;
-    border: none;
-    border-radius: 6px;
-    padding: 7px 14px;
-    cursor: pointer;
-}
-#logout-btn {
-    background: #6a0572;
-    color: #fff;
-    border: none;
-    border-radius: 6px;
-    padding: 10px 20px;
-    cursor: pointer;
-    margin-bottom: 20px;
-}
+li.completed { text-decoration: line-through; color: #888; opacity: 0.7; }
+.remove-btn { margin-left: auto; background: #ff4d4d; color: white; border: none; border-radius: 6px; padding: 7px 14px; cursor: pointer; }
+#logout-btn { background: #6a0572; color: #fff; border: none; border-radius: 6px; padding: 10px 20px; cursor: pointer; margin-bottom: 20px; }
 </style>
 </head>
 <body>
@@ -267,6 +213,14 @@ function showLogin() {
     document.getElementById('forgot-username-section').style.display = 'none';
     document.getElementById('reset-section').style.display = 'none';
     document.getElementById('task-section').style.display = 'none';
+    // Remember Me: fill login if remembered
+    if(localStorage.checkbox && localStorage.checkbox !== "") {
+        document.getElementById('login-remember').checked = true;
+        document.getElementById('login-username').value = localStorage.username || "";
+    } else {
+        document.getElementById('login-remember').checked = false;
+        document.getElementById('login-username').value = "";
+    }
 }
 function showRegister() {
     document.getElementById('login-section').style.display = 'none';
@@ -331,18 +285,9 @@ function setUsers(users) {
 function getCurrentUser() {
     return JSON.parse(localStorage.getItem('currentUser') || 'null');
 }
-function setCurrentUser(user, remember) {
-    if (user) {
-        localStorage.setItem('currentUser', JSON.stringify(user));
-        if (remember) localStorage.setItem('rememberMe', 'true');
-        else localStorage.removeItem('rememberMe');
-    } else {
-        localStorage.removeItem('currentUser');
-        localStorage.removeItem('rememberMe');
-    }
-}
-function isRemembered() {
-    return localStorage.getItem('rememberMe') === 'true';
+function setCurrentUser(user) {
+    if (user) localStorage.setItem('currentUser', JSON.stringify(user));
+    else localStorage.removeItem('currentUser');
 }
 
 // Registration logic
@@ -379,7 +324,14 @@ function register(event) {
     var user = { username, email, password };
     users.push(user);
     setUsers(users);
-    setCurrentUser(user, remember);
+    setCurrentUser(user);
+    if (remember) {
+        localStorage.username = username;
+        localStorage.checkbox = "rememberMe";
+    } else {
+        localStorage.username = "";
+        localStorage.checkbox = "";
+    }
     msg.textContent = "Registration successful! Logging you in...";
     setTimeout(showTasks, 1200);
 }
@@ -398,14 +350,21 @@ function login(event) {
         msg.textContent = "Invalid username/email or password.";
         return;
     }
-    setCurrentUser(user, remember);
+    setCurrentUser(user);
+    if (remember) {
+        localStorage.username = username;
+        localStorage.checkbox = "rememberMe";
+    } else {
+        localStorage.username = "";
+        localStorage.checkbox = "";
+    }
     msg.textContent = "Login successful!";
     setTimeout(showTasks, 500);
 }
 
 // Logout logic
 function logout() {
-    setCurrentUser(null, false);
+    setCurrentUser(null);
     showLogin();
 }
 
@@ -520,10 +479,17 @@ function removeAllTasks() {
 
 // On page load, show login or task section
 window.onload = function() {
-    if (getCurrentUser() && isRemembered()) showTasks();
-    else showLogin();
+    if (localStorage.checkbox && localStorage.checkbox !== "" && localStorage.username) {
+        var users = getUsers();
+        var user = users.find(u => u.username === localStorage.username || u.email === localStorage.username);
+        if (user) {
+            setCurrentUser(user);
+            showTasks();
+            return;
+        }
+    }
+    showLogin();
 };
 </script>
 </body>
 </html>
-
