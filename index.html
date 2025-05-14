@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Artful Task-List</title>
 <style>
-/* ... (your CSS from previous answers, unchanged) ... */
 body {
     font-family: 'Segoe UI', Arial, sans-serif;
     background: linear-gradient(135deg, #f3e7e9 0%, #e3eeff 100%);
@@ -14,9 +13,12 @@ body {
     min-height: 100vh;
     transition: background 0.5s;
 }
-body.theme-dark {
-    background: linear-gradient(135deg, #232526 0%, #414345 100%);
-    color: #eee;
+.art-bg {
+    position: fixed;
+    top: 0; left: 0; width: 100vw; height: 100vh;
+    z-index: -1;
+    background: none;
+    opacity: 1;
 }
 #art-header {
     text-align: center;
@@ -27,111 +29,6 @@ body.theme-dark {
     color: #6a0572;
     text-shadow: 2px 2px 0 #fff, 0 0 10px #c471f5;
 }
-#premium-section {
-    background:rgba(255,255,255,0.95);
-    border-radius:16px;
-    box-shadow:0 2px 8px #c471f5;
-    max-width:400px;
-    margin:32px auto 24px auto;
-    padding:24px;
-}
-#premium-section label {
-    display: block;
-    margin-bottom: 8px;
-    font-size: 1.05em;
-}
-#premium-section button {
-    margin-top: 10px;
-    background: #6a0572;
-    color: #fff;
-    border: none;
-    border-radius: 6px;
-    padding: 10px 20px;
-    cursor: pointer;
-}
-#premium-msg {
-    margin-top:8px;
-    color:#6a0572;
-    font-weight: bold;
-}
-#theme-switcher {
-    margin: 8px 0 16px 0;
-}
-#login-section, #register-section, #task-section, #forgot-section, #forgot-username-section, #reset-section {
-    background: rgba(255,255,255,0.85);
-    border-radius: 16px;
-    box-shadow: 0 4px 24px rgba(106,5,114,0.12);
-    max-width: 400px;
-    margin: 0 auto 24px auto;
-    padding: 32px;
-    transition: box-shadow 0.3s;
-}
-#login-section input, #register-section input, #task-section input, #task-section button, #recurringInput, #priorityInput, #attachmentInput, #forgot-section input, #forgot-username-section input, #reset-section input {
-    margin: 8px 0;
-    padding: 10px;
-    border-radius: 6px;
-    border: 1px solid #c471f5;
-    width: 100%;
-    font-size: 1em;
-}
-#register-section input[type="date"] {
-    padding: 8px;
-}
-#taskList {
-    list-style: none;
-    padding: 0;
-}
-li {
-    display: flex;
-    align-items: center;
-    padding: 12px;
-    border-bottom: 1px solid #eee;
-    background: linear-gradient(90deg, #f3e7e9 0%, #e3eeff 100%);
-    border-radius: 8px;
-    margin-bottom: 8px;
-    box-shadow: 0 2px 8px rgba(196,113,245,0.07);
-}
-body.theme-dark li {
-    background: linear-gradient(90deg, #232526 0%, #414345 100%);
-    color: #eee;
-}
-li.completed {
-    text-decoration: line-through;
-    color: #888;
-    opacity: 0.7;
-}
-.task-priority-high { border-left: 6px solid #e74c3c; }
-.task-priority-medium { border-left: 6px solid #f1c40f; }
-.task-priority-low { border-left: 6px solid #2ecc71; }
-.attachment-link {
-    margin-left: 10px;
-    font-size: 0.9em;
-}
-.remove-btn {
-    margin-left: auto;
-    background: #ff4d4d;
-    color: white;
-    border: none;
-    border-radius: 6px;
-    padding: 7px 14px;
-    cursor: pointer;
-}
-#logout-btn {
-    background: #6a0572;
-    color: #fff;
-    border: none;
-    border-radius: 6px;
-    padding: 10px 20px;
-    cursor: pointer;
-    margin-bottom: 20px;
-}
-.art-bg {
-    position: fixed;
-    top: 0; left: 0; width: 100vw; height: 100vh;
-    z-index: -1;
-    background: none; /* Vanta will draw the background */
-    opacity: 1;
-}
 .toggle-link, .forgot-link {
     color: #6a0572;
     cursor: pointer;
@@ -140,48 +37,31 @@ li.completed {
     margin-top: 12px;
     display: inline-block;
 }
-#remember-me-label {
-    display: flex;
-    align-items: center;
-    font-size: 0.98em;
-    margin-top: 8px;
+#login-section, #register-section, #forgot-section, #forgot-username-section, #reset-section {
+    background: rgba(255,255,255,0.85);
+    border-radius: 16px;
+    box-shadow: 0 4px 24px rgba(106,5,114,0.12);
+    max-width: 400px;
+    margin: 0 auto 24px auto;
+    padding: 32px;
+    transition: box-shadow 0.3s;
 }
-input[type="checkbox"] {
-    width: auto;
-    margin-right: 8px;
-}
-.premium-feature {
-    background: #e3eeff;
-    color: #6a0572;
-    border-radius: 8px;
+#login-section input, #register-section input, #forgot-section input, #forgot-username-section input, #reset-section input {
+    margin: 8px 0;
     padding: 10px;
-    margin: 10px 0;
-    font-size: 0.98em;
-    border: 1px dashed #6a0572;
+    border-radius: 6px;
+    border: 1px solid #c471f5;
+    width: 100%;
+    font-size: 1em;
 }
-#calendar-view {
-    margin: 16px 0;
-    padding: 12px;
-    background: #f3e7e9;
-    border-radius: 10px;
-    box-shadow: 0 1px 4px #c471f5;
-    display: none;
-}
-body.theme-dark #calendar-view {
-    background: #232526;
-    color: #eee;
-}
-#stats-view {
-    margin: 16px 0;
-    padding: 12px;
-    background: #f3e7e9;
-    border-radius: 10px;
-    box-shadow: 0 1px 4px #c471f5;
-    display: none;
-}
-body.theme-dark #stats-view {
-    background: #232526;
-    color: #eee;
+button {
+    background: #6a0572;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    padding: 10px 20px;
+    cursor: pointer;
+    margin-top: 10px;
 }
 </style>
 </head>
@@ -189,54 +69,29 @@ body.theme-dark #stats-view {
 <div class="art-bg" id="art-bg"></div>
 <div id="art-header">🎨 Artful Task-List</div>
 
-<!-- Premium Features Section -->
-<div id="premium-section">
-  <h2>Upgrade to Premium</h2>
-  <div>
-    <label>
-      <input type="radio" name="premium" value="bronze" onclick="selectPremium('bronze')">
-      Bronze ($0.99): Reminders, Custom Themes
-    </label>
-    <label>
-      <input type="radio" name="premium" value="silver" onclick="selectPremium('silver')">
-      Silver ($1.99): All Bronze + Recurring Tasks, Attachments
-    </label>
-    <label>
-      <input type="radio" name="premium" value="gold" onclick="selectPremium('gold')">
-      Gold ($3.00): All Silver + Priority, Calendar View, Productivity Stats
-    </label>
-  </div>
-  <button onclick="purchasePremium()">Purchase</button>
-  <div id="premium-msg"></div>
-</div>
-
-<!-- Registration Section -->
-<div id="register-section" style="display:none;">
-    <h2>Create Your Account</h2>
-    <input type="text" id="reg-fullname" placeholder="Full Name" required>
-    <input type="date" id="reg-dob" placeholder="Date of Birth" required min="1930-01-01" max="2025-12-31">
-    <input type="email" id="reg-email" placeholder="Email" required>
-    <input type="text" id="reg-username" placeholder="Username" required>
-    <input type="password" id="reg-password" placeholder="Password" required>
-    <input type="password" id="reg-confirm" placeholder="Confirm Password" required>
-    <label id="remember-me-label"><input type="checkbox" id="reg-remember">Remember Me</label>
-    <button onclick="register()">Create Account</button>
-    <div id="register-msg"></div>
-    <span class="toggle-link" onclick="showLogin()">Already have an account? Log in</span>
-</div>
-
 <!-- Login Section -->
 <div id="login-section">
     <h2>Login</h2>
     <input type="text" id="login-username" placeholder="Username or Email">
     <input type="password" id="login-password" placeholder="Password">
-    <label id="remember-me-label"><input type="checkbox" id="login-remember">Remember Me</label>
     <button onclick="login()">Login</button>
     <div id="login-msg"></div>
     <span class="toggle-link" onclick="showRegister()">New user? Create an account</span>
     <br>
     <span class="forgot-link" onclick="showForgot()">Forgot Password?</span> | 
     <span class="forgot-link" onclick="showForgotUsername()">Forgot Username?</span>
+</div>
+
+<!-- Registration Section -->
+<div id="register-section" style="display:none;">
+    <h2>Create Your Account</h2>
+    <input type="text" id="reg-username" placeholder="Username" required>
+    <input type="email" id="reg-email" placeholder="Email" required>
+    <input type="password" id="reg-password" placeholder="Password" required>
+    <input type="password" id="reg-confirm" placeholder="Confirm Password" required>
+    <button onclick="register()">Create Account</button>
+    <div id="register-msg"></div>
+    <span class="toggle-link" onclick="showLogin()">Already have an account? Log in</span>
 </div>
 
 <!-- Forgot Password Section -->
@@ -257,7 +112,7 @@ body.theme-dark #stats-view {
     <span class="toggle-link" onclick="showLogin()">Back to Login</span>
 </div>
 
-<!-- Password Reset Section (simulated link) -->
+<!-- Password Reset Section (simulated link for demo) -->
 <div id="reset-section" style="display:none;">
     <h2>Reset Password</h2>
     <input type="password" id="reset-new-password" placeholder="Enter new password">
@@ -267,68 +122,22 @@ body.theme-dark #stats-view {
     <span class="toggle-link" onclick="showLogin()">Back to Login</span>
 </div>
 
-<!-- Task Section -->
-<div id="task-section" style="display:none;">
-    <button id="logout-btn" onclick="logout()">Logout</button>
-    <h2 id="welcome"></h2>
-    <div id="premium-features-area"></div>
-    <div id="theme-switcher" style="display:none;">
-      <label>Theme: 
-        <select id="themeSelect" onchange="switchTheme()">
-          <option value="default">Artful (Default)</option>
-          <option value="dark">Dark</option>
-        </select>
-      </label>
-    </div>
-    <input type="text" id="taskInput" placeholder="Enter a new task">
-    <select id="recurringInput" style="display:none;">
-      <option value="">No Repeat</option>
-      <option value="daily">Repeat Daily</option>
-      <option value="weekly">Repeat Weekly</option>
-    </select>
-    <select id="priorityInput" style="display:none;">
-      <option value="">No Priority</option>
-      <option value="high">High</option>
-      <option value="medium">Medium</option>
-      <option value="low">Low</option>
-    </select>
-    <input type="file" id="attachmentInput" style="display:none;" accept="image/*,.pdf">
-    <button onclick="addTask()">Add Task</button>
-    <ul id="taskList"></ul>
-    <button id="removeAll" onclick="removeAllTasks()">Remove All Tasks</button>
-    <button id="calendarBtn" onclick="toggleCalendar()" style="display:none;margin-top:10px;">Show Calendar View</button>
-    <div id="calendar-view"></div>
-    <button id="statsBtn" onclick="toggleStats()" style="display:none;margin-top:10px;">Show Productivity Stats</button>
-    <div id="stats-view"></div>
-</div>
-
 <!-- Vanta.js dependencies and background logic -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r121/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/vanta@latest/dist/vanta.waves.min.js"></script>
 <script>
-  function isMobileApp() {
-    return window.isMobileApp === true;
-  }
-  if (!isMobileApp()) {
-    VANTA.WAVES({
-      el: "#art-bg",
-      color: 0x3a0ca3,
-      shininess: 60,
-      waveHeight: 25,
-      waveSpeed: 1,
-      zoom: 1.2,
-      backgroundColor: 0x1a0a3a
-    });
-  } else {
-    var bg = document.getElementById('art-bg');
-    bg.style.background = "url('https://images.unsplash.com/photo-1464983953574-0892a716854b?auto=format&fit=crop&w=800&q=80') no-repeat center center";
-    bg.style.backgroundSize = "cover";
-    bg.style.opacity = "1";
-  }
+VANTA.WAVES({
+  el: "#art-bg",
+  color: 0x3a0ca3,
+  shininess: 60,
+  waveHeight: 25,
+  waveSpeed: 1,
+  zoom: 1.2,
+  backgroundColor: 0x1a0a3a
+});
 </script>
-
-<!-- App JavaScript Logic -->
 <script>
+// Section toggling logic
 function showLogin() {
     document.getElementById('login-section').style.display = '';
     document.getElementById('register-section').style.display = 'none';
@@ -365,33 +174,23 @@ function showReset() {
     document.getElementById('reset-section').style.display = '';
 }
 
-// Simulated user DB in localStorage
+// Demo user storage (for demo only)
 function getUsers() {
     return JSON.parse(localStorage.getItem('users') || '[]');
 }
 function setUsers(users) {
     localStorage.setItem('users', JSON.stringify(users));
 }
-function getCurrentUser() {
-    return JSON.parse(localStorage.getItem('currentUser') || 'null');
-}
-function setCurrentUser(user) {
-    if (user) localStorage.setItem('currentUser', JSON.stringify(user));
-    else localStorage.removeItem('currentUser');
-}
 
-// Registration
+// Registration logic
 function register() {
-    var fullname = document.getElementById('reg-fullname').value.trim();
-    var dob = document.getElementById('reg-dob').value.trim();
-    var email = document.getElementById('reg-email').value.trim();
     var username = document.getElementById('reg-username').value.trim();
+    var email = document.getElementById('reg-email').value.trim();
     var password = document.getElementById('reg-password').value;
     var confirm = document.getElementById('reg-confirm').value;
     var msg = document.getElementById('register-msg');
     msg.textContent = '';
-
-    if (!fullname || !dob || !email || !username || !password || !confirm) {
+    if (!username || !email || !password || !confirm) {
         msg.textContent = "Please fill in all fields.";
         return;
     }
@@ -408,14 +207,13 @@ function register() {
         msg.textContent = "Email already registered.";
         return;
     }
-    var user = { fullname, dob, email, username, password };
-    users.push(user);
+    users.push({ username, email, password });
     setUsers(users);
     msg.textContent = "Registration successful! Please log in.";
     setTimeout(showLogin, 1200);
 }
 
-// Login
+// Login logic
 function login() {
     var username = document.getElementById('login-username').value.trim();
     var password = document.getElementById('login-password').value;
@@ -427,34 +225,11 @@ function login() {
         msg.textContent = "Invalid username/email or password.";
         return;
     }
-    setCurrentUser(user);
     msg.textContent = "Login successful!";
-    setTimeout(() => {
-        showTaskSection();
-    }, 500);
+    // In a real app, redirect or show the task section here
 }
 
-// Logout
-function logout() {
-    setCurrentUser(null);
-    document.getElementById('task-section').style.display = 'none';
-    showLogin();
-}
-
-// Show task section
-function showTaskSection() {
-    document.getElementById('login-section').style.display = 'none';
-    document.getElementById('register-section').style.display = 'none';
-    document.getElementById('forgot-section').style.display = 'none';
-    document.getElementById('forgot-username-section').style.display = 'none';
-    document.getElementById('reset-section').style.display = 'none';
-    document.getElementById('task-section').style.display = '';
-    var user = getCurrentUser();
-    document.getElementById('welcome').textContent = user ? "Welcome, " + user.fullname + "!" : "Welcome!";
-    loadTasks();
-}
-
-// Forgot Password (simulated)
+// Forgot Password logic (simulated)
 function forgotPassword() {
     var email = document.getElementById('forgot-email').value.trim();
     var msg = document.getElementById('forgot-msg');
@@ -467,6 +242,8 @@ function forgotPassword() {
     msg.textContent = "Password reset link sent! (Simulated)";
     setTimeout(showReset, 1200);
 }
+
+// Password reset logic (simulated - resets first user)
 function resetPassword() {
     var newPass = document.getElementById('reset-new-password').value;
     var confirm = document.getElementById('reset-confirm-password').value;
@@ -479,7 +256,6 @@ function resetPassword() {
         msg.textContent = "Passwords do not match.";
         return;
     }
-    // Simulate password reset for first user in DB
     var users = getUsers();
     if (users.length > 0) {
         users[0].password = newPass;
@@ -489,7 +265,7 @@ function resetPassword() {
     }
 }
 
-// Forgot Username (simulated)
+// Forgot Username logic (simulated)
 function forgotUsername() {
     var email = document.getElementById('forgot-username-email').value.trim();
     var msg = document.getElementById('forgot-username-msg');
@@ -502,79 +278,8 @@ function forgotUsername() {
     msg.textContent = "Your username is: " + user.username;
 }
 
-// Task logic
-function getTasks() {
-    var user = getCurrentUser();
-    if (!user) return [];
-    return JSON.parse(localStorage.getItem('tasks_' + user.username) || '[]');
-}
-function setTasks(tasks) {
-    var user = getCurrentUser();
-    if (!user) return;
-    localStorage.setItem('tasks_' + user.username, JSON.stringify(tasks));
-}
-function addTask() {
-    var input = document.getElementById('taskInput');
-    var text = input.value.trim();
-    if (!text) return;
-    var tasks = getTasks();
-    tasks.push({ text, completed: false });
-    setTasks(tasks);
-    input.value = '';
-    loadTasks();
-}
-function loadTasks() {
-    var tasks = getTasks();
-    var ul = document.getElementById('taskList');
-    ul.innerHTML = '';
-    tasks.forEach((task, i) => {
-        var li = document.createElement('li');
-        li.textContent = task.text;
-        if (task.completed) li.classList.add('completed');
-        li.onclick = function() {
-            tasks[i].completed = !tasks[i].completed;
-            setTasks(tasks);
-            loadTasks();
-        };
-        var btn = document.createElement('button');
-        btn.textContent = "Remove";
-        btn.className = "remove-btn";
-        btn.onclick = function(e) {
-            e.stopPropagation();
-            tasks.splice(i, 1);
-            setTasks(tasks);
-            loadTasks();
-        };
-        li.appendChild(btn);
-        ul.appendChild(li);
-    });
-}
-function removeAllTasks() {
-    setTasks([]);
-    loadTasks();
-}
-
-// Premium (simulated)
-function selectPremium(level) {
-    document.getElementById('premium-msg').textContent = "Selected: " + level.charAt(0).toUpperCase() + level.slice(1);
-}
-function purchasePremium() {
-    var msg = document.getElementById('premium-msg');
-    msg.textContent = "Thank you for upgrading! (Simulated)";
-}
-
-// Theme switcher (simulated)
-function switchTheme() {
-    var val = document.getElementById('themeSelect').value;
-    if (val === "dark") document.body.classList.add('theme-dark');
-    else document.body.classList.remove('theme-dark');
-}
-
-// On page load, show login or task section
-window.onload = function() {
-    if (getCurrentUser()) showTaskSection();
-    else showLogin();
-};
+// Show login on load
+window.onload = showLogin;
 </script>
 </body>
 </html>
