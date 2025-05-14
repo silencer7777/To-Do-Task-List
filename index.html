@@ -135,6 +135,7 @@ li.completed { text-decoration: line-through; color: #888; opacity: 0.7; }
     <h2>Create Your Account</h2>
     <input type="text" id="reg-username" placeholder="Username" required autocomplete="username">
     <input type="email" id="reg-email" placeholder="Email" required autocomplete="email">
+    <span id="emailFeedback" style="color:red;font-size:0.95em;"></span>
     <input type="password" id="reg-password" placeholder="Password" required autocomplete="new-password">
     <input type="password" id="reg-confirm" placeholder="Confirm Password" required autocomplete="new-password">
     <label id="remember-me-label"><input type="checkbox" id="reg-remember">Remember Me</label>
@@ -290,6 +291,13 @@ function setCurrentUser(user) {
     else localStorage.removeItem('currentUser');
 }
 
+// Email validation (regex)
+function validateEmail(email) {
+    // Simple but effective regex for most cases [1][5][6]
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailPattern.test(email);
+}
+
 // Registration logic
 function register(event) {
     event.preventDefault();
@@ -299,9 +307,15 @@ function register(event) {
     var confirm = document.getElementById('reg-confirm').value;
     var remember = document.getElementById('reg-remember').checked;
     var msg = document.getElementById('register-msg');
+    var emailFeedback = document.getElementById('emailFeedback');
     msg.textContent = '';
+    emailFeedback.textContent = '';
     if (!username || !email || !password || !confirm) {
         msg.textContent = "Please fill in all fields.";
+        return;
+    }
+    if (!validateEmail(email)) {
+        emailFeedback.textContent = "Please enter a valid email address.";
         return;
     }
     if (password.length < 6) {
@@ -490,6 +504,21 @@ window.onload = function() {
     }
     showLogin();
 };
+
+// Live email validation feedback
+document.addEventListener("DOMContentLoaded", function() {
+    var emailInput = document.getElementById('reg-email');
+    var emailFeedback = document.getElementById('emailFeedback');
+    if(emailInput) {
+        emailInput.addEventListener('input', function() {
+            if (!validateEmail(emailInput.value)) {
+                emailFeedback.textContent = "Please enter a valid email address.";
+            } else {
+                emailFeedback.textContent = "";
+            }
+        });
+    }
+});
 </script>
 </body>
 </html>
