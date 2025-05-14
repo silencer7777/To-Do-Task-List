@@ -29,6 +29,33 @@ body {
     color: #6a0572;
     text-shadow: 2px 2px 0 #fff, 0 0 10px #c471f5;
 }
+#premium-section {
+    background:rgba(255,255,255,0.95);
+    border-radius:16px;
+    box-shadow:0 2px 8px #c471f5;
+    max-width:400px;
+    margin:32px auto 24px auto;
+    padding:24px;
+}
+#premium-section label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 1.05em;
+}
+#premium-section button {
+    margin-top: 10px;
+    background: #6a0572;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    padding: 10px 20px;
+    cursor: pointer;
+}
+#premium-msg {
+    margin-top:8px;
+    color:#6a0572;
+    font-weight: bold;
+}
 .toggle-link, .forgot-link {
     color: #6a0572;
     cursor: pointer;
@@ -68,6 +95,27 @@ button {
 <body>
 <div class="art-bg" id="art-bg"></div>
 <div id="art-header">🎨 Artful Task-List</div>
+
+<!-- Premium Features Section -->
+<div id="premium-section">
+  <h2>Upgrade to Premium</h2>
+  <div>
+    <label>
+      <input type="radio" name="premium" value="bronze" onclick="selectPremium('bronze')">
+      Bronze ($0.99): Reminders, Custom Themes
+    </label>
+    <label>
+      <input type="radio" name="premium" value="silver" onclick="selectPremium('silver')">
+      Silver ($1.99): All Bronze + Recurring Tasks, Attachments
+    </label>
+    <label>
+      <input type="radio" name="premium" value="gold" onclick="selectPremium('gold')">
+      Gold ($3.00): All Silver + Priority, Calendar View, Productivity Stats
+    </label>
+  </div>
+  <button onclick="purchasePremium()">Purchase</button>
+  <div id="premium-msg"></div>
+</div>
 
 <!-- Login Section -->
 <div id="login-section">
@@ -172,6 +220,15 @@ function showReset() {
     document.getElementById('forgot-section').style.display = 'none';
     document.getElementById('forgot-username-section').style.display = 'none';
     document.getElementById('reset-section').style.display = '';
+}
+
+// Premium logic (simulated)
+function selectPremium(level) {
+    document.getElementById('premium-msg').textContent = "Selected: " + level.charAt(0).toUpperCase() + level.slice(1);
+}
+function purchasePremium() {
+    var msg = document.getElementById('premium-msg');
+    msg.textContent = "Thank you for upgrading! (Simulated)";
 }
 
 // Demo user storage (for demo only)
@@ -283,4 +340,3 @@ window.onload = showLogin;
 </script>
 </body>
 </html>
-
