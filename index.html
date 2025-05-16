@@ -28,8 +28,7 @@ body {
   color: #6a0572;
   text-shadow: 2px 2px 0 #fff, 0 0 10px #c471f5;
 }
-
-#task-section {
+.section {
   background: rgba(255,255,255,0.85);
   border-radius: 16px;
   box-shadow: 0 4px 24px rgba(106,5,114,0.12);
@@ -37,6 +36,10 @@ body {
   margin: 32px auto 24px auto;
   padding: 32px;
   color: #222;
+  display: none;
+}
+.section.active {
+  display: block;
 }
 #logout-btn {
   background: #6a0572;
@@ -197,8 +200,21 @@ body {
   font-size: 1.2em;
   margin-right: 4px;
 }
+.form-link {
+  color: #6a0572;
+  cursor: pointer;
+  text-decoration: underline;
+  font-size: 0.96em;
+  margin-top: 12px;
+  display: inline-block;
+}
+.error-msg {
+  color: #d90429;
+  font-size: 1em;
+  margin: 8px 0 0 0;
+}
 @media (max-width: 700px) {
-  #task-section { max-width: 98vw; padding: 8vw 2vw; }
+  .section { max-width: 98vw; padding: 8vw 2vw; }
   .note-card { width: 98vw; max-width: 99vw; }
   #notes-list { gap: 8px; }
 }
@@ -208,9 +224,46 @@ body {
 <div class="art-bg" id="art-bg"></div>
 <div id="art-header">🎨 Artful Notes & Mindful Productivity</div>
 
-<div id="task-section">
+<!-- Login Section -->
+<div id="login-section" class="section active">
+  <form id="login-form" autocomplete="on">
+    <h2>Sign In</h2>
+    <input type="text" id="login-username" placeholder="Username" required autocomplete="username">
+    <input type="password" id="login-password" placeholder="Password" required autocomplete="current-password">
+    <button type="submit">Sign In</button>
+    <div id="login-msg" class="error-msg"></div>
+    <span class="form-link" onclick="showSection('register-section')">Create Account</span> |
+    <span class="form-link" onclick="showSection('forgot-section')">Forgot Password?</span>
+  </form>
+</div>
+
+<!-- Register Section -->
+<div id="register-section" class="section">
+  <form id="register-form" autocomplete="on">
+    <h2>Create Account</h2>
+    <input type="text" id="register-username" placeholder="Username" required autocomplete="username">
+    <input type="password" id="register-password" placeholder="Password" required autocomplete="new-password">
+    <button type="submit">Create Account</button>
+    <div id="register-msg" class="error-msg"></div>
+    <span class="form-link" onclick="showSection('login-section')">Already have an account? Sign In</span>
+  </form>
+</div>
+
+<!-- Forgot Password Section -->
+<div id="forgot-section" class="section">
+  <form id="forgot-form" autocomplete="off">
+    <h2>Forgot Password</h2>
+    <input type="text" id="forgot-username" placeholder="Enter your username" required>
+    <button type="submit">Send Reset Link</button>
+    <div id="forgot-msg" class="error-msg"></div>
+    <span class="form-link" onclick="showSection('login-section')">Back to Sign In</span>
+  </form>
+</div>
+
+<!-- Notes Section -->
+<div id="task-section" class="section">
   <button id="logout-btn" onclick="logout()">Logout</button>
-  <h2 id="welcome">Welcome, Creative Mind!</h2>
+  <h2 id="welcome"></h2>
   <form id="note-form" autocomplete="off">
     <textarea id="note-content" placeholder="What's on your mind?" required rows="2"></textarea>
     <select id="note-mood" title="Mood">
@@ -242,14 +295,103 @@ VANTA.WAVES({
 });
 </script>
 <script>
-// --- Notes Logic ---
-const notesKey = "artful_notes_v2";
-let notes = JSON.parse(localStorage.getItem(notesKey) || "[]");
-
-function saveNotes() {
-  localStorage.setItem(notesKey, JSON.stringify(notes));
+// --- User Auth Logic ---
+const USERS_KEY = "artful_users_v2";
+const CURRENT_KEY = "artful_current_user_v2";
+function getUsers() {
+  return JSON.parse(localStorage.getItem(USERS_KEY) || "{}");
+}
+function setUsers(users) {
+  localStorage.setItem(USERS_KEY, JSON.stringify(users));
+}
+function setCurrentUser(username) {
+  if (username)
+    localStorage.setItem(CURRENT_KEY, JSON.stringify(username));
+  else
+    localStorage.removeItem(CURRENT_KEY);
+}
+function getCurrentUser() {
+  return JSON.parse(localStorage.getItem(CURRENT_KEY) || "null");
+}
+function showSection(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  if (id === "task-section") {
+    document.getElementById('welcome').textContent = "Welcome, " + getCurrentUser() + "!";
+    renderNotes();
+  }
+  // Clear messages
+  document.querySelectorAll('.error-msg').forEach(e => e.textContent = "");
 }
 
+document.getElementById('register-form').onsubmit = function(e) {
+  e.preventDefault();
+  const username = document.getElementById('register-username').value.trim();
+  const password = document.getElementById('register-password').value;
+  const msg = document.getElementById('register-msg');
+  let users = getUsers();
+  if (!username || !password) {
+    msg.textContent = "Please fill in all fields.";
+    return;
+  }
+  if (users[username]) {
+    msg.textContent = "Username already exists.";
+    return;
+  }
+  users[username] = { password, notes: [] };
+  setUsers(users);
+  setCurrentUser(username);
+  showSection('task-section');
+};
+
+document.getElementById('login-form').onsubmit = function(e) {
+  e.preventDefault();
+  const username = document.getElementById('login-username').value.trim();
+  const password = document.getElementById('login-password').value;
+  const msg = document.getElementById('login-msg');
+  let users = getUsers();
+  if (!users[username] || users[username].password !== password) {
+    msg.textContent = "Invalid username or password.";
+    return;
+  }
+  setCurrentUser(username);
+  showSection('task-section');
+};
+
+document.getElementById('forgot-form').onsubmit = function(e) {
+  e.preventDefault();
+  const username = document.getElementById('forgot-username').value.trim();
+  const msg = document.getElementById('forgot-msg');
+  let users = getUsers();
+  if (!users[username]) {
+    msg.textContent = "No such user found.";
+    return;
+  }
+  msg.textContent = "Password reset link sent! (Simulated)";
+  setTimeout(() => {
+    msg.textContent = "Your password is: " + users[username].password;
+  }, 1200);
+};
+
+function logout() {
+  setCurrentUser(null);
+  showSection('login-section');
+}
+
+// --- Notes Logic ---
+function getNotes() {
+  const user = getCurrentUser();
+  const users = getUsers();
+  if (!user || !users[user]) return [];
+  return users[user].notes || [];
+}
+function setNotes(notes) {
+  const user = getCurrentUser();
+  let users = getUsers();
+  if (!user || !users[user]) return;
+  users[user].notes = notes;
+  setUsers(users);
+}
 function moodEmoji(mood) {
   switch(mood) {
     case "happy": return "😊";
@@ -259,8 +401,8 @@ function moodEmoji(mood) {
     default: return "😐";
   }
 }
-
 function renderNotes() {
+  const notes = getNotes();
   const list = document.getElementById('notes-list');
   list.innerHTML = '';
   notes.slice().reverse().forEach((note, idx) => {
@@ -308,8 +450,9 @@ function renderNotes() {
         drawing = false;
         // Save doodle to note
         let realIdx = notes.length - 1 - idx;
-        notes[realIdx].doodle = canvas.toDataURL();
-        saveNotes();
+        let allNotes = getNotes();
+        allNotes[realIdx].doodle = canvas.toDataURL();
+        setNotes(allNotes);
         renderNotes();
       });
       // Clear doodle button
@@ -319,8 +462,9 @@ function renderNotes() {
       clearBtn.onclick = (ev) => {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         let realIdx = notes.length - 1 - idx;
-        notes[realIdx].doodle = null;
-        saveNotes();
+        let allNotes = getNotes();
+        allNotes[realIdx].doodle = null;
+        setNotes(allNotes);
         renderNotes();
         ev.stopPropagation();
       };
@@ -351,7 +495,6 @@ function renderNotes() {
     aiBtn.className = 'ai-btn';
     aiBtn.textContent = "AI Summarize";
     aiBtn.onclick = () => {
-      // Simulate AI summary
       alert("Summary: " + (note.content.length > 40 ? note.content.slice(0,40)+"..." : note.content));
     };
     actions.appendChild(aiBtn);
@@ -362,8 +505,9 @@ function renderNotes() {
     removeBtn.textContent = 'Remove';
     removeBtn.onclick = () => {
       let realIdx = notes.length - 1 - idx;
-      notes.splice(realIdx, 1);
-      saveNotes();
+      let allNotes = getNotes();
+      allNotes.splice(realIdx, 1);
+      setNotes(allNotes);
       renderNotes();
     };
     actions.appendChild(removeBtn);
@@ -382,7 +526,8 @@ document.getElementById('note-form').onsubmit = function(e) {
   const tag = document.getElementById('note-tag').value.replace(/^#/, "");
   const color = document.getElementById('note-color').value;
   if (!content) return;
-  notes.push({
+  let allNotes = getNotes();
+  allNotes.push({
     content,
     mood,
     tag,
@@ -390,22 +535,20 @@ document.getElementById('note-form').onsubmit = function(e) {
     date: new Date().toLocaleString(),
     doodle: null
   });
-  saveNotes();
+  setNotes(allNotes);
   renderNotes();
-  // Clear form
   document.getElementById('note-content').value = "";
   document.getElementById('note-tag').value = "";
   document.getElementById('note-color').value = "#fff8e1";
   document.getElementById('note-mood').value = "neutral";
 };
 
-function logout() {
-  // For demo, just reload
-  window.location.reload();
+// On load, show correct section
+if (getCurrentUser()) {
+  showSection('task-section');
+} else {
+  showSection('login-section');
 }
-
-// Initial render
-renderNotes();
 </script>
 </body>
 </html>
