@@ -73,7 +73,7 @@ body {
   padding: 32px;
   color: #222;
 }
-input, button {
+input, button, textarea {
   margin: 8px 0;
   padding: 10px;
   border-radius: 6px;
@@ -148,6 +148,22 @@ li.completed {
   font-size: 0.9em;
   margin-top: -6px;
   margin-bottom: 8px;
+}
+#task-form textarea {
+  resize: vertical;
+  min-height: 36px;
+  max-height: 120px;
+  line-height: 1.4;
+  overflow-y: auto;
+  width: 100%;
+  box-sizing: border-box;
+}
+.task-text {
+  flex: 1;
+  color: #222;
+  font-size: 1em;
+  word-break: break-word;
+  white-space: pre-wrap; /* preserves line breaks */
 }
 </style>
 </head>
@@ -237,7 +253,7 @@ li.completed {
   <button id="logout-btn" onclick="logout()">Logout</button>
   <h2 id="welcome"></h2>
   <form id="task-form" onsubmit="addTask(event)">
-    <input type="text" id="taskInput" placeholder="Enter a new task" required>
+    <textarea id="taskInput" placeholder="Enter a new task" required rows="2"></textarea>
     <button type="submit">Add Task</button>
   </form>
   <ul id="taskList"></ul>
@@ -455,10 +471,6 @@ function resetPassword(event) {
     var newPass = document.getElementById('reset-new-password').value;
     var confirm = document.getElementById('reset-confirm-password').value;
     var msg = document.getElementById('reset-msg');
-    if (!newPass || !confirm) {
-        msg.textContent = "Please fill in both fields.";
-        return;
-    }
     if (newPass.length < 6) {
         msg.textContent = "Password must be at least 6 characters.";
         return;
@@ -471,8 +483,10 @@ function resetPassword(event) {
     if (users.length > 0) {
         users[0].password = newPass;
         setUsers(users);
-        msg.textContent = "Password reset! Please log in.";
+        msg.textContent = "Password reset! Logging you in...";
         setTimeout(showLogin, 1200);
+    } else {
+        msg.textContent = "No user to reset.";
     }
 }
 
@@ -490,16 +504,43 @@ function forgotUsername(event) {
     msg.textContent = "Your username is: " + user.username;
 }
 
-// Task logic
+// ---- TASK LOGIC ----
+
 function getTasks() {
     var user = getCurrentUser();
     if (!user) return [];
-    return JSON.parse(localStorage.getItem('tasks_' + user.username) || '[]');
+    return JSON.parse(localStorage.getItem("tasks_" + user.username) || "[]");
 }
 function setTasks(tasks) {
     var user = getCurrentUser();
     if (!user) return;
-    localStorage.setItem('tasks_' + user.username, JSON.stringify(tasks));
+    localStorage.setItem("tasks_" + user.username, JSON.stringify(tasks));
+}
+function loadTasks() {
+    var tasks = getTasks();
+    var list = document.getElementById('taskList');
+    list.innerHTML = '';
+    tasks.forEach(function(task, idx) {
+        var li = document.createElement('li');
+        if (task.completed) li.classList.add('completed');
+        var span = document.createElement('span');
+        span.className = 'task-text';
+        span.textContent = task.text;
+        span.innerHTML = task.text.replace(/\n/g, "<br>");
+        span.onclick = function() {
+            toggleTask(idx);
+        };
+        li.appendChild(span);
+        var btn = document.createElement('button');
+        btn.className = 'remove-btn';
+        btn.textContent = 'Remove';
+        btn.onclick = function(e) {
+            e.stopPropagation();
+            removeTask(idx);
+        };
+        li.appendChild(btn);
+        list.appendChild(li);
+    });
 }
 function addTask(event) {
     event.preventDefault();
@@ -507,56 +548,32 @@ function addTask(event) {
     var text = input.value.trim();
     if (!text) return;
     var tasks = getTasks();
-    tasks.push({ text, completed: false });
+    tasks.push({ text: text, completed: false });
     setTasks(tasks);
     input.value = '';
     loadTasks();
 }
-function loadTasks() {
+function toggleTask(idx) {
     var tasks = getTasks();
-    var ul = document.getElementById('taskList');
-    ul.innerHTML = '';
-    tasks.forEach((task, i) => {
-        var li = document.createElement('li');
-        li.textContent = task.text;
-        if (task.completed) li.classList.add('completed');
-        li.onclick = function() {
-            tasks[i].completed = !tasks[i].completed;
-            setTasks(tasks);
-            loadTasks();
-        };
-        var btn = document.createElement('button');
-        btn.textContent = "Remove";
-        btn.className = "remove-btn";
-        btn.onclick = function(e) {
-            e.stopPropagation();
-            tasks.splice(i, 1);
-            setTasks(tasks);
-            loadTasks();
-        };
-        li.appendChild(btn);
-        ul.appendChild(li);
-    });
-}
-function removeAllTasks() {
-    setTasks([]);
+    tasks[idx].completed = !tasks[idx].completed;
+    setTasks(tasks);
     loadTasks();
 }
-
-// On page load, show login or task section
-window.onload = function() {
-    if (localStorage.checkbox && localStorage.checkbox !== "" && localStorage.username) {
-        var users = getUsers();
-        var user = users.find(u => u.username === localStorage.username || u.email === localStorage.username);
-        if (user) {
-            setCurrentUser(user);
-            showTasks();
-            return;
-        }
+function removeTask(idx) {
+    var tasks = getTasks();
+    tasks.splice(idx, 1);
+    setTasks(tasks);
+    loadTasks();
+}
+function removeAllTasks() {
+    if (confirm("Are you sure you want to remove all tasks?")) {
+        setTasks([]);
+        loadTasks();
     }
-    showLogin();
-};
+}
+
+// Show login by default
+showLogin();
 </script>
 </body>
 </html>
-
